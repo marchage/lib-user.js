@@ -37,17 +37,17 @@ class SynchronicityFDL {
     }
     
     async fetchBlobSynced (url) {
-        await semaphore.acquire()
-        const blob = await fetchBlob(url)
-        semaphore.release()
+        await this.#semaphore.acquire()
+        const blob = await this.#fetchBlob(url)
+        this.#semaphore.release()
         return blob
     }
 
     async downloadBlobSynced (blob, name) {
-        await mutex.acquire()
-        downloadBlob(blob, name)
-        await sleep(delay)
-        mutex.release()
+        await this.#mutex.acquire()
+        this.#downloadBlob(blob, name)
+        await this.#sleep(this.#delay)
+        this.#mutex.release()
         console.info("Downloaded", name)
     }
 }
