@@ -7,42 +7,64 @@
 // @require      https://raw.githubusercontent.com/marchage/lib-user.js/main/Semaphore.js
 // ==/UserScript==
 /* eslint-env greasemonkey */
+; (function (global) {
+    'use strict'
 
-const semaphore = new Semaphore(5)
-const mutex = new Semaphore(1)
-const delay = 100
+    const semaphore = new Semaphore(5)
+    const mutex = new Semaphore(1)
+    const delay = 100
 
-const sleep = async (ms) => new Promise(resolve => setTimeout(resolve, ms))
+    const sleep = async (ms) => new Promise(resolve => setTimeout(resolve, ms))
 
-const downloadBlob = (blob, name) => {
-    const anchor = document.createElement("a")
-    anchor.setAttribute("download", name || "")
-    anchor.href = URL.createObjectURL(blob)
-    anchor.click()
-    setTimeout(_ => URL.revokeObjectURL(blob), 30000)
-}
+    const downloadBlob = (blob, name) => {
+        const anchor = document.createElement("a")
+        anchor.setAttribute("download", name || "")
+        anchor.href = URL.createObjectURL(blob)
+        anchor.click()
+        setTimeout(_ => URL.revokeObjectURL(blob), 30000)
+    }
 
-const downloadBlobSynchronized = async (blob, name) => {
-    await mutex.acquire()
-    downloadBlob(blob, name)
-    await sleep(delay)
-    mutex.release()
-    console.info("Downloaded", name)
-}
+    const fetchBlob = async (url) => {
+        if (url == null) return
 
-const fetchBlob = async (url) => {
-    if (url == null) return
+        const res = await fetch(url).then(res => { if (!res.ok) throw new Error("Not 2xx response", { cause: res }); else return res })
+        const resBuf = await res.arrayBuffer()
+        const resBlob = new Blob([resBuf], { type: 'application/octet-stream' })
 
-    const res = await fetch(url).then(res => { if (!res.ok) throw new Error("Not 2xx response", { cause: res }); else return res })
-    const resBuf = await res.arrayBuffer()
-    const resBlob = new Blob([resBuf], { type: 'application/octet-stream' })
+        return resBlob
+    }
 
-    return resBlob
-}
+    function SyncFetchDownload() {
+        return {
 
-const fetchBlobSynchronized = async (url) => {
-    await semaphore.acquire()
-    const blob = await fetchBlob(url)
-    semaphore.release()
-    return blob
-}
+            fetchBlobSynchronized: async function (url) {
+                await semaphore.acquire()
+                const blob = await fetchBlob(url)
+                semaphore.release()
+                return blob
+            },
+
+            downloadBlobSynchronized: async function (blob, name) {
+                await mutex.acquire()
+                downloadBlob(blob, name)
+                await sleep(delay)
+                mutex.release()
+                console.info("Downloaded", name)
+            }
+
+        }
+    }
+
+    if (typeof exports === 'object') {
+        // node export
+        module.exports = SyncFetchDownload
+    } else if (typeof define === 'function' && define.amd) {
+        // amd export
+        define(function () {
+            return SyncFetchDownload
+        })
+    } else {
+        // browser global
+        global.SyncFetchDownload = SyncFetchDownload
+    }
+}(this))
