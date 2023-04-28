@@ -35,7 +35,7 @@ class SynchronicityFDL {
     static async downloadBlobSynced(blob, name) {
         await SynchronicityFDL.#mutex.acquire()
         SynchronicityFDL.#downloadBlob(blob, name)
-        await SynchronicityFDL.#sleep(this.#delay)
+        await SynchronicityFDL.#sleep(SynchronicityFDL.#delay)
         SynchronicityFDL.#mutex.release()
         console.info("Downloaded", name)
     }
