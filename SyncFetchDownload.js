@@ -7,16 +7,16 @@
 // @require      https://raw.githubusercontent.com/marchage/lib-user.js/main/Semaphore.js
 // ==/UserScript==
 /* eslint-env greasemonkey */
-; (function (global) {
-    'use strict'
+class SyncFetchDownload {
+    #semaphore = new Semaphore(5)
+    #mutex = new Semaphore(1)
+    #delay = 100
 
-    const semaphore = new Semaphore(5)
-    const mutex = new Semaphore(1)
-    const delay = 100
+    #sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms))
+    }
 
-    const sleep = async (ms) => new Promise(resolve => setTimeout(resolve, ms))
-
-    const downloadBlob = (blob, name) => {
+    #downloadBlob(blob, name) {
         const anchor = document.createElement("a")
         anchor.setAttribute("download", name || "")
         anchor.href = URL.createObjectURL(blob)
@@ -24,7 +24,7 @@
         setTimeout(_ => URL.revokeObjectURL(blob), 30000)
     }
 
-    const fetchBlob = async (url) => {
+    async #fetchBlob(url) {
         if (url == null) return
 
         const res = await fetch(url).then(res => { if (!res.ok) throw new Error("Not 2xx response", { cause: res }); else return res })
@@ -33,38 +33,19 @@
 
         return resBlob
     }
-
-    function SyncFetchDownload() {
-        return {
-
-            fetchBlobSynchronized: async function (url) {
-                await semaphore.acquire()
-                const blob = await fetchBlob(url)
-                semaphore.release()
-                return blob
-            },
-
-            downloadBlobSynchronized: async function (blob, name) {
-                await mutex.acquire()
-                downloadBlob(blob, name)
-                await sleep(delay)
-                mutex.release()
-                console.info("Downloaded", name)
-            }
-
-        }
+    
+    async fetchBlobSynchronized (url) {
+        await semaphore.acquire()
+        const blob = await fetchBlob(url)
+        semaphore.release()
+        return blob
     }
 
-    if (typeof exports === 'object') {
-        // node export
-        module.exports = SyncFetchDownload
-    } else if (typeof define === 'function' && define.amd) {
-        // amd export
-        define(function () {
-            return SyncFetchDownload
-        })
-    } else {
-        // browser global
-        global.SyncFetchDownload = SyncFetchDownload
+    async downloadBlobSynchronized (blob, name) {
+        await mutex.acquire()
+        downloadBlob(blob, name)
+        await sleep(delay)
+        mutex.release()
+        console.info("Downloaded", name)
     }
-}(this))
+}
