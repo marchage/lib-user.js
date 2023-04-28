@@ -8,9 +8,11 @@
 // ==/UserScript==
 /* eslint-env greasemonkey */
 class SynchronicityFDL {
-    #semaphore = new Semaphore(5)
-    #mutex = new Semaphore(1)
-    #delay = 100
+    constructor(concurrency = 5) {
+        this.#semaphore = new Semaphore(concurrency)
+        this.#mutex = new Semaphore(1)
+        this.#delay = 100
+    }
 
     #sleep(ms) {
         return new Promise(resolve => setTimeout(resolve, ms))
@@ -34,14 +36,14 @@ class SynchronicityFDL {
         return resBlob
     }
     
-    async fetchBlobSynchronized (url) {
+    async fetchBlobSynced (url) {
         await semaphore.acquire()
         const blob = await fetchBlob(url)
         semaphore.release()
         return blob
     }
 
-    async downloadBlobSynchronized (blob, name) {
+    async downloadBlobSynced (blob, name) {
         await mutex.acquire()
         downloadBlob(blob, name)
         await sleep(delay)
