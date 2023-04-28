@@ -1,13 +1,17 @@
 // ==UserScript==
 // @name         SynchronicityFDL
 // @description  Synchronized blob fetching 5 at a time, something with synchronized blob downloading with mutex (Taken from StackOverflow, ...) (synchronicity starts here, by not awaiting async function)
-// @version      0.1.0
+// @version      0.1.1
 // @author       marchage
 // @match        *://*
 // @require      https://raw.githubusercontent.com/marchage/lib-user.js/main/Semaphore.js
 // ==/UserScript==
 /* eslint-env greasemonkey */
 class SynchronicityFDL {
+    #semaphore
+    #mutex
+    #delay
+
     constructor(concurrency = 5) {
         this.#semaphore = new Semaphore(concurrency)
         this.#mutex = new Semaphore(1)
