@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         SyncFetchDownload.js
-// @description  Synchronized blob fetching 5 at a time, something with synchronized blob downloading with mutex (Taken from StackOverflow, ...)
+// @description  Synchronized blob fetching 5 at a time, something with synchronized blob downloading with mutex (Taken from StackOverflow, ...) (synchronicity starts here, by not awaiting async function)
 // @version      0.1.0
 // @author       marchage
 // @match        *://*
