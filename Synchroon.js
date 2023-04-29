@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         SynchronicityFDL
+// @name         Synchroon
 // @description  Synchronized blob fetching 5 at a time, something with synchronized blob downloading with mutex (Taken from StackOverflow, ...) (synchronicity starts here, by not awaiting async function)
 // @version      0.2.0
 // @author       marchage
@@ -7,7 +7,7 @@
 // @require      https://raw.githubusercontent.com/marchage/lib-user.js/main/Semaphore.js
 // ==/UserScript==
 /* eslint-env greasemonkey */
-class SynchronicityFDL {
+class Synchroon {
     static #semaphore = new Semaphore(5)
     static #mutex = new Semaphore(1)
     static #delay = 100
@@ -33,17 +33,17 @@ class SynchronicityFDL {
     }
 
     static async downloadBlobSynced(blob, name) {
-        await SynchronicityFDL.#mutex.acquire()
-        SynchronicityFDL.#downloadBlob(blob, name)
-        await SynchronicityFDL.#sleep(SynchronicityFDL.#delay)
-        SynchronicityFDL.#mutex.release()
+        await Synchroon.#mutex.acquire()
+        Synchroon.#downloadBlob(blob, name)
+        await Synchroon.#sleep(Synchroon.#delay)
+        Synchroon.#mutex.release()
         console.info("Downloaded", name)
     }
 
     static async fetchBlobSynced(url) {
-        await SynchronicityFDL.#semaphore.acquire()
-        const blob = await SynchronicityFDL.#fetchBlob(url)
-        SynchronicityFDL.#semaphore.release()
+        await Synchroon.#semaphore.acquire()
+        const blob = await Synchroon.#fetchBlob(url)
+        Synchroon.#semaphore.release()
         return blob
     }
 }
