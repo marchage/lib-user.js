@@ -5,6 +5,7 @@
 // @author       marchage
 // @match        *://*
 // @require      https://raw.githubusercontent.com/marchage/lib-user.js/main/Semaphore.js
+// @unwrap
 // ==/UserScript==
 /* eslint-env greasemonkey */
 class Synchroon {
