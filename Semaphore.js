@@ -5,7 +5,6 @@
 // @version      0.1.1
 // @author       marchage
 // @match        *://*
-// @unwrap
 // ==/UserScript==
 /* eslint-env greasemonkey */
 class Semaphore {
