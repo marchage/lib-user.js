@@ -9,7 +9,7 @@
 /* eslint-env greasemonkey */
 import { Semaphore } from 'https://raw.githubusercontent.com/marchage/lib-user.js/main/Semaphore.js'
 
-class Synchroon {
+export class Synchroon {
     static #semaphore = new Semaphore(5)
     static #mutex = new Semaphore(1)
     static #delay = 100
