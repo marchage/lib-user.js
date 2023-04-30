@@ -21,7 +21,7 @@ export class AsyncSemaphore {
       this.#refreshComplete()
     }
   
-    async withLock<A>(f = () => Promise) {
+    async withLock(f = () => Promise) {
       await this.#acquire()
       return this.#execWithRelease(f)
     }
@@ -59,7 +59,7 @@ export class AsyncSemaphore {
         this.#available -= 1
         return undefined
       } else {
-        let fn = Function() {/***/}
+        let fn = new Function('() => {}')
         const p = new Promise(ref => { fn = ref })
         this.#upcoming.push(fn)
         return p
@@ -84,7 +84,7 @@ export class AsyncSemaphore {
   
     #refreshComplete() {
       let fn = () => () => {/***/}
-      this.#completePr = new Promise<void>(r => { fn = r })
+      this.#completePr = new Promise(r => { fn = r })
       this.#completeFn = fn
     }
   }
