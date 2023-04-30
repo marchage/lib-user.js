@@ -1,9 +1,8 @@
 // ==UserScript==
 // @name         Synchroon
-// @description  Async number semaphore guarded synchronized binary downloading - 5 at a time. Semaphore Taken from SO and adapted. 
-//               Second semaphore implementation based on https://alexn.org/blog/2020/04/21/javascript-semaphore/. 
+// @description  Async number semaphore guarded synchronized binary downloading - 5 at a time. Semaphore Taken from SO and adapted.
 //               Synchronicity starts here, by not awaiting public async functions, but rather awaiting the private ones.
-// @version      0.2.2
+// @version      0.2.3
 // @author       marchage
 // @match        *://*
 // ==/UserScript==
@@ -34,8 +33,6 @@ class Semaphore {
 
     /**
      * Creates an instance of an async counting semaphore for concurrency management.
-     * @date 4/30/2023 - 2:42:38 AM
-     * @author marchage
      *
      * @constructor
      * @param {number} [max=1] - Maximum number of concurrent operations
@@ -51,8 +48,6 @@ class Semaphore {
      * Commen in literature P-function, decrementing semaphore #S by 1. When #S 
      * is negative the caller is blocked i.e. added to semaphore's queue and 
      * resolving is posponed.
-     * @date 4/30/2023 - 2:46:47 AM
-     * @author marchage
      *
      * @returns {*}
      */
@@ -74,8 +69,6 @@ class Semaphore {
      * Commen in literature V-function, incrementing semaphore #S by 1, representing 
      * an access slot of total max concurrent that has become available. If there
      * are any waiting in the queue, the first one is resolved.
-     * @date 4/30/2023 - 2:47:41 AM
-     * @author marchage
      */
     release() {
         if (this.#queue.length > 0) {
@@ -88,8 +81,6 @@ class Semaphore {
 
 /**
  * Synchronized blob fetching 5 at a time, something with synchronized blob downloading with mutex (Taken from StackOverflow, ...)
- * @date 4/30/2023 - 11:22:51 AM
- * @author marchage
  *
  * @class Synchroon
  * @typedef {Synchroon}
@@ -133,7 +124,7 @@ class Synchroon {
      */
     static async #fetchBlob(url) {
         // if (url == null) return
-        const res = await fetch(url).then(res => { if (!res.ok) throw new Error("Not 2xx response", { cause: res }); else return res })
+        const res = await fetch(url).then(res => { if (!res.ok || res.status !== 200 ) throw new Error("Not 2xx response", { cause: res }); else return res })
         const resBuf = await res.arrayBuffer()
         const blob = new Blob([resBuf], { type: 'application/octet-stream' })
         return blob

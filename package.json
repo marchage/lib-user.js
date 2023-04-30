@@ -1,7 +1,7 @@
 {
   "name": "synchroon",
   "version": "0.2.0",
-  "description": "Async semaphore synchronized concurrent blob downloader in JS. Source: SO",
+  "description": "Synchroon is an async number semaphore-guarded synchronized blob downloader - 5 at a time by default. Semaphore Taken from SO and adapted.",
   "main": "Synchroon.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
