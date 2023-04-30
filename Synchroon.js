@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Synchroon
 // @description  Synchronized blob fetching 5 at a time, something with synchronized blob downloading with mutex (Taken from StackOverflow, ...)
-// @version      0.2.1
+// @version      0.2.2
 // @modifiedby   marchage
 // @match        *://*
 // ==/UserScript==
@@ -12,7 +12,7 @@
 // } from 'https:/raw.githubusercontent.com/marchage/lib-user.js/main/Semaphore';
 let myDefault, Semaphore
 (async () => {
-    ({ myDefault, Semaphore } = await import('https:/raw.githubusercontent.com/marchage/lib-user.js/main/Semaphore'))
+    ({ default: myDefault, Semaphore } = await import('https:/raw.githubusercontent.com/marchage/lib-user.js/main/Semaphore'))
 })();
 
 class Synchroon {
