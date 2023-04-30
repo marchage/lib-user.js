@@ -194,11 +194,12 @@ class Synchroon {
      * @returns {*}
      */
     static async downloadBlobSynced(blob, name) {
-        await Synchroon.#mutex.acquire()
-        Synchroon.#downloadBlob(blob, name)
-        await Synchroon.#sleep(Synchroon.#delay)
-        Synchroon.#mutex.release()
-        console.info("Downloaded", name)
+        await Synchroon.#mutex.withLock(async () => {
+            Synchroon.#downloadBlob(blob, name)
+            await Synchroon.#sleep(Synchroon.#delay)
+            // Synchroon.#mutex.release()
+            console.info("Downloaded", name)
+        })
     }
 
     /**
@@ -211,9 +212,10 @@ class Synchroon {
      * @returns {unknown}
      */
     static async fetchBlobSynced(url) {
-        await Synchroon.#semaphore.acquire()
-        const blob = await Synchroon.#fetchBlob(url)
-        Synchroon.#semaphore.release()
-        return blob
+        await Synchroon.#semaphore.withLock(async () => {
+            const blob = await Synchroon.#fetchBlob(url)
+            // Synchroon.#semaphore.release()
+            return blob
+        })
     }
 }
