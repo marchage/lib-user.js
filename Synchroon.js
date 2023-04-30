@@ -194,7 +194,7 @@ class Synchroon {
      * @returns {*}
      */
     static async downloadBlobSynced(blob, name) {
-        await Synchroon.#mutex.withLock(async () => {
+        Synchroon.#mutex.withLockRunAndForget(async () => {
             Synchroon.#downloadBlob(blob, name)
             await Synchroon.#sleep(Synchroon.#delay)
             // Synchroon.#mutex.release()
