@@ -11,9 +11,9 @@
 // ==/UserScript==
 /* eslint-env greasemonkey */
 
-import Semaphore
-  from 'https:/raw.githubusercontent.com/marchage/lib-user.js/main/Semaphore.js';
-
+const {
+    default: Semaphore
+} = await import('https:/raw.githubusercontent.com/marchage/lib-user.js/main/Semaphore.js');
 // /**
 //  * Async counting semaphore functionality, based on Edsger Dijkstra's concept from 
 //  * the '60s, using JS Promises. Taken from StackOverflow and adapted. General workings 
@@ -36,7 +36,7 @@ import Semaphore
 //     #count
 //     /** @type {Array<Function>} */
 //     #queue
-    
+
 //     /**
 //      * Creates an instance of an async counting semaphore for concurrency management.
 //      * @date 4/30/2023 - 2:42:38 AM
@@ -51,7 +51,7 @@ import Semaphore
 //         this.#count = 0
 //         this.#queue = []
 //     }
-    
+
 //     /**
 //      * Commen in literature P-function, decrementing semaphore #S by 1. When #S 
 //      * is negative the caller is blocked i.e. added to semaphore's queue and 
@@ -74,7 +74,7 @@ import Semaphore
 //         return promise
 //     }
 
-    
+
 //     /**
 //      * Commen in literature V-function, incrementing semaphore #S by 1, representing 
 //      * an access slot of total max concurrent that has become available. If there
@@ -115,7 +115,7 @@ class Synchroon {
         return new Promise(resolve => setTimeout(resolve, ms))
     }
 
-    
+
     /**
      * Download blob with name to local disk. If no name is given, the browser name is taken from blob type.
      * @date 4/30/2023 - 3:08:31 AM
