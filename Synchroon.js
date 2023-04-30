@@ -18,11 +18,6 @@ import {
 class Synchroon {
     static #semaphore = new Semaphore(5)
     static #mutex = new Semaphore(1)
-    static #delay = 100
-
-    static #sleep(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms))
-    }
 
     static #downloadBlob(blob, name) {
         const anchor = document.createElement("a")
@@ -55,7 +50,7 @@ class Synchroon {
     static async downloadBlobSynced(blob, name) {
         await Synchroon.#mutex.acquire()
         Synchroon.#downloadBlob(blob, name)
-        await Synchroon.#sleep(Synchroon.#delay)
+        await new Promise(resolve => setTimeout(resolve, 100))
         Synchroon.#mutex.release()
         console.info("Downloaded", name)
     }
