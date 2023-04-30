@@ -1,0 +1,34 @@
+{
+  "name": "synchroon",
+  "version": "0.2.0",
+  "description": "Async semaphore synchronized concurrent blob downloader in JS. Source: SO",
+  "main": "Synchroon.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/marchage/lib-user.js.git"
+  },
+  "keywords": [
+    "multi-thread downloader",
+    "async semaphore",
+    "mutex",
+    "all-in-one",
+    "greasemonkey lib",
+    "tampermonkey lib",
+    "userscript",
+    "library",
+    "user.js",
+    "lib",
+    "js",
+    "javascript",
+    "GM4"
+  ],
+  "author": "marchage",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/marchage/lib-user.js/issues"
+  },
+  "homepage": "https://github.com/marchage/lib-user.js#readme"
+}

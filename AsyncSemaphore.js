@@ -6,7 +6,7 @@
 // @match        *://*
 // ==/UserScript==
 
-export default class AsyncSemaphore {
+class AsyncSemaphore {
     #available
     #upcoming
     #heads

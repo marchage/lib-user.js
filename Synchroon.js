@@ -9,88 +9,139 @@
 // ==/UserScript==
 /* eslint-env greasemonkey */
 
-/**
- * Async counting semaphore functionality, based on Edsger Dijkstra's concept from 
- * the '60s, using JS Promises. Taken from StackOverflow and adapted. General workings 
- * are a synchronization primitive used to control access to a common resource by 
- * multiple threads and avoid critical section problems in a concurrent system.
- * 
- * @simple Synchronously do some shared thing - like downloading items on a 
- *         list - 5 at the same time. More than that is queued for later when 
- *         another finishes.
- * @date 4/30/2023 - 2:17:22 AM
- *
- * @class Semaphore
- * @typedef {Semaphore}
- */
-class Semaphore {
-    /** (ficticious) semaphore #S = #max - #count */
-    /** @type {number} */
-    #max
-    /** @type {number} */
-    #count
-    /** @type {Array<Function>} */
-    #queue
+class AsyncSemaphore {
+    #available
+    #upcoming
+    #heads
 
+    #completeFn! = () => {/* */ }
+    #completePr! = () => new Promise()
+
+    
     /**
-     * Creates an instance of an async counting semaphore for concurrency management.
-     * @date 4/30/2023 - 2:42:38 AM
-     * @author marchage
+     * Creates an instance of AsyncSemaphore.
      *
      * @constructor
-     * @param {number} [max=1] - Maximum number of concurrent operations
+     * @param {number} [workersCount=5] Number of workers to allow to run at the same time.
      */
-    constructor(max = 1) {
-        if (max < 1) { max = 1 }
-        this.#max = max
-        this.#count = 0
-        this.#queue = []
+    constructor(workersCount = 5) {
+        if (workersCount <= 0) throw new Error("workersCount must be positive")
+        this.#available = workersCount
+        this.#upcoming = []
+        this.#heads = []
+        this.#refreshComplete()
     }
 
+    // Private API
+    async #execWithRelease(f = async () => Promise) {
+        try {
+            return await f()
+        } finally {
+            this.#release()
+        }
+    }
+
+    #queue() {
+        if (!this.#heads.length) {
+            this.#heads = this.#upcoming.reverse()
+            this.#upcoming = []
+        }
+        return this.#heads
+    }
+
+    #acquire() {
+        if (this.#available > 0) {
+            this.#available -= 1
+            return undefined
+        } else {
+            let fn = new Function('() => {}')
+            const p = new Promise(ref => { fn = ref })
+            this.#upcoming.push(fn)
+            return p
+        }
+    }
+
+    #release() {
+        const queue = this.#queue()
+        if (queue.length) {
+            const fn = queue.pop()
+            if (fn) fn()
+        } else {
+            this.#available += 1
+
+            if (this.#available >= this.workersCount) {
+                const fn = this.#completeFn
+                this.#refreshComplete()
+                fn()
+            }
+        }
+    }
+
+    #refreshComplete() {
+        let fn = () => () => {/***/ }
+        this.#completePr = new Promise(r => { fn = r })
+        this.#completeFn = fn
+    }
+
+    // Public API
     /**
-     * Commen in literature P-function, decrementing semaphore #S by 1. When #S 
-     * is negative the caller is blocked i.e. added to semaphore's queue and 
-     * resolving is posponed.
-     * @date 4/30/2023 - 2:46:47 AM
+     * Acquire a lock and execute the given function. The lock is released when 
+     * the function returns.
+     *
+     * @async
+     * @param {() => any} [f=() => Promise]
+     * @returns {any) => unknown}
+     */
+    async withLock(f = () => Promise) {
+        await this.#acquire()
+        return this.#execWithRelease(f)
+    }
+
+    
+    /**
+     * Acquire a lock and execute the given function. The lock is not released 
+     * when the function returns, but rather some time in the future.
+     *
+     * @async
+     * @param {() => any} [f=() => Promise]
+     * @returns {any) => any}
+     */
+    async withLockRunAndForget(f = () => Promise) {
+        await this.#acquire()
+        // Ignoring returned promise on purpose!
+        this.#execWithRelease(f)
+    }
+
+    
+    /**
+     * Wait for all locks to be released.
+     * @date 4/30/2023 - 11:20:51 AM
      * @author marchage
      *
-     * @returns {*}
+     * @async
+     * @returns {unknown}
      */
-    acquire() {
-        let promise
-        if (this.#count < this.#max) {
-            promise = Promise.resolve()
-        } else {
-            promise = new Promise(resolve => {
-                this.#queue.push(resolve)
-            })
+    async awaitTerminate() {
+        if (this.#available < this.workersCount) {
+            return this.#completePr
         }
-        this.#count++
-        return promise
-    }
-
-
-    /**
-     * Commen in literature V-function, incrementing semaphore #S by 1, representing 
-     * an access slot of total max concurrent that has become available. If there
-     * are any waiting in the queue, the first one is resolved.
-     * @date 4/30/2023 - 2:47:41 AM
-     * @author marchage
-     */
-    release() {
-        if (this.#queue.length > 0) {
-            const resolve = this.#queue.shift()
-            resolve()
-        }
-        this.#count--
     }
 }
 
+
+/**
+ * Synchronized blob fetching 5 at a time, something with synchronized blob downloading with mutex (Taken from StackOverflow, ...)
+ * @date 4/30/2023 - 11:22:51 AM
+ * @author marchage
+ *
+ * @class Synchroon
+ * @typedef {Synchroon}
+ */
 class Synchroon {
-    /** @type {Semaphore} */
-    static #semaphore = new Semaphore(5)
-    /** @type {Semaphore} semaphore of 1, behavous like a simple mutex-lock */
-    static #mutex = new Semaphore(1)
+    /** @type {AsyncSemaphore} */
+    static #semaphore = new AsyncSemaphore(5)
+    /** @type {AsyncSemaphore} semaphore of 1, behavous like a simple mutex-lock */
+    static #mutex = new AsyncSemaphore(1)
     /** @type {number} Don't know why this was, but it was needed for some reason. Hopefully not only demonstration purpouses?! */
     static #delay = 100
 
