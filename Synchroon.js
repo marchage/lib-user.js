@@ -14,8 +14,8 @@ class AsyncSemaphore {
     #upcoming
     #heads
 
-    #completeFn! = () => {/* */ }
-    #completePr! = () => new Promise()
+    #completeFn = () => {/* */ }
+    #completePr = () => new Promise()
 
     
     /**
