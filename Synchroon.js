@@ -95,10 +95,10 @@ class Semaphore {
  * @typedef {Synchroon}
  */
 class Synchroon {
-    /** @type {AsyncSemaphore} */
-    static #semaphore = new AsyncSemaphore(6)
-    /** @type {AsyncSemaphore} semaphore of 1, behavous like a simple mutex-lock */
-    static #mutex = new AsyncSemaphore(1)
+    /** @type {Semaphore} */
+    static #semaphore = new Semaphore(6)
+    /** @type {Semaphore} semaphore of 1, behavous like a simple mutex-lock */
+    static #mutex = new Semaphore(1)
     /** @type {number} Don't know why this was, but it was needed for some reason. Hopefully not only demonstration purpouses?! */
     static #delay = 100
 
