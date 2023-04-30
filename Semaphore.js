@@ -7,7 +7,7 @@
 // @match        *://*
 // ==/UserScript==
 /* eslint-env greasemonkey */
-export class Semaphore {
+export default class Semaphore {
     // (ficticious) semaphore #S = #max - #count
     #max
     #count
