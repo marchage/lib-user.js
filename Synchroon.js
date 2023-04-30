@@ -10,9 +10,9 @@
 // import {
 //   Semaphore,
 // } from 'https:/raw.githubusercontent.com/marchage/lib-user.js/main/Semaphore';
-let myDefault, Semaphore
+let Semaphore
 (async () => {
-    ({ default: myDefault, Semaphore } = await import('https:/raw.githubusercontent.com/marchage/lib-user.js/main/Semaphore'))
+    ({ default: Semaphore } = await import('https:/raw.githubusercontent.com/marchage/lib-user.js/main/Semaphore'))
 })();
 
 class Synchroon {
