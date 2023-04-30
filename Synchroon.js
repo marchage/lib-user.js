@@ -1,11 +1,7 @@
 // ==UserScript==
 // @name         Synchroon
 // @description  Synchronized blob fetching 5 at a time, something with synchronized blob downloading with mutex (Taken from StackOverflow, ...)
-//               (synchronicity starts here, by not awaiting async function)
-// @version      0.2
-// @date         4/30/2023 - 2:17:22 AM
-// @modified     4/30/2023 - 2:17:22 AM
-// @created      4/30/2023 - 2:17:22 AM
+// @version      0.2.0
 // @modifiedby   marchage
 // @match        *://*
 // ==/UserScript==
@@ -14,10 +10,8 @@
 // import {
 //   Semaphore,
 // } from 'https:/raw.githubusercontent.com/marchage/lib-user.js/main/Semaphore';
-const {
-    default: myDefault,
-    Semaphore
-} = import('https:/raw.githubusercontent.com/marchage/lib-user.js/main/Semaphore')
+let myDefault, Semaphore
+({ myDefault, Semaphore } = await import('https:/raw.githubusercontent.com/marchage/lib-user.js/main/Semaphore'))
 
 class Synchroon {
     static #semaphore = new Semaphore(5)
@@ -38,6 +32,8 @@ class Synchroon {
         const blob = new Blob([resBuf], { type: 'application/octet-stream' })
         return blob
     }
+
+    // (synchronicity starts below, by not awaiting these async function)
 
     /**
      * Mutex protected blob downloading. Can be called from async function without
