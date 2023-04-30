@@ -16,27 +16,14 @@ import {
 } from 'https:/raw.githubusercontent.com/marchage/lib-user.js/main/Semaphore.js';
 
 class Synchroon {
-    /** @type {Semaphore} */
     static #semaphore = new Semaphore(5)
-    /** @type {Semaphore} semaphore of 1, behavous like a simple mutex-lock */
     static #mutex = new Semaphore(1)
-    /** @type {number} Don't know why this was, but it was needed for some reason. Hopefully not only demonstration purpouses?! */
     static #delay = 100
 
     static #sleep(ms) {
         return new Promise(resolve => setTimeout(resolve, ms))
     }
 
-
-    /**
-     * Download blob with name to local disk. If no name is given, the browser name is taken from blob type.
-     * @date 4/30/2023 - 3:08:31 AM
-     * @author marchage
-     *
-     * @static
-     * @param {*} blob
-     * @param {*} name
-     */
     static #downloadBlob(blob, name) {
         const anchor = document.createElement("a")
         anchor.setAttribute("download", name || "")
@@ -45,16 +32,6 @@ class Synchroon {
         setTimeout(_ => URL.revokeObjectURL(blob), 30000)
     }
 
-    /**
-     * Private function to fetch a blob from a URL. If the response is not 2xx
-     * an error is thrown.
-     * @date 4/30/2023 - 3:07:37 AM
-     *
-     * @static
-     * @async
-     * @param {*} url
-     * @returns {unknown}
-     */
     static async #fetchBlob(url) {
         // if (url == null) return
         const res = await fetch(url).then(res => { if (!res.ok) throw new Error("Not 2xx response", { cause: res }); else return res })
