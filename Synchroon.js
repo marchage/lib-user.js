@@ -11,9 +11,8 @@
 // ==/UserScript==
 /* eslint-env greasemonkey */
 
-import {
-  Semaphore,
-} from 'https:/raw.githubusercontent.com/marchage/lib-user.js/main/Semaphore.js';
+import Semaphore
+  from 'https:/raw.githubusercontent.com/marchage/lib-user.js/main/Semaphore.js';
 
 // /**
 //  * Async counting semaphore functionality, based on Edsger Dijkstra's concept from 
