@@ -11,9 +11,9 @@
 // ==/UserScript==
 /* eslint-env greasemonkey */
 
-const {
-    default: Semaphore
-} = import('https:/raw.githubusercontent.com/marchage/lib-user.js/main/Semaphore.js');
+import {
+  Semaphore,
+} from 'https:/raw.githubusercontent.com/marchage/lib-user.js/main/Semaphore.js';
 
 class Synchroon {
     /** @type {Semaphore} */
