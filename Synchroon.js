@@ -1,10 +1,10 @@
 // ==UserScript==
 // @name         Synchroon
-// @description  Synchronized blob fetching 5 at a time, something with synchronized blob downloading with mutex (Taken from StackOverflow, ...)
-//               (synchronicity starts here, by not awaiting async function)
-// @version      0.2
-// @author       ??? (taken from StackOverflow, somewhere)
-// @modifiedby   marchage
+// @description  Async number semaphore guarded synchronized binary downloading - 5 at a time. Taken from StackOverflow 
+//               first, and later https://alexn.org/blog/2020/04/21/javascript-semaphore/. Synchronicity starts 
+//               here, by not awaiting public async functions, but rather awaiting the private ones (as this script does).
+// @version      0.2.1
+// @author       marchage
 // @match        *://*
 // ==/UserScript==
 /* eslint-env greasemonkey */
