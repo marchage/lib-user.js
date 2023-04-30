@@ -5,86 +5,87 @@
 // @author       marchage
 // @match        *://*
 // ==/UserScript==
-export class AsyncSemaphore {
+
+export default class AsyncSemaphore {
     #available
     #upcoming
     #heads
-  
-    #completeFn! = () => {/* */}
-    #completePr! = () => new Promise() 
-  
+
+    #completeFn! = () => {/* */ }
+    #completePr! = () => new Promise()
+
     constructor(workersCount = 5) {
-      if (workersCount <= 0) throw new Error("workersCount must be positive")
-      this.#available = workersCount
-      this.#upcoming = []
-      this.#heads = []
-      this.#refreshComplete()
-    }
-  
-    async withLock(f = () => Promise) {
-      await this.#acquire()
-      return this.#execWithRelease(f)
-    }
-  
-    async withLockRunAndForget(f = () => Promise) {
-      await this.#acquire()
-      // Ignoring returned promise on purpose!
-      this.#execWithRelease(f)
-    }
-  
-    async awaitTerminate() {
-      if (this.#available < this.workersCount) {
-        return this.#completePr
-      }
-    }
-  
-    async #execWithRelease(f = () => Promise) {
-      try {
-        return await f()
-      } finally {
-        this.#release()
-      }
-    }
-  
-    #queue() {
-      if (!this.#heads.length) {
-        this.#heads = this.#upcoming.reverse()
+        if (workersCount <= 0) throw new Error("workersCount must be positive")
+        this.#available = workersCount
         this.#upcoming = []
-      }
-      return this.#heads
+        this.#heads = []
+        this.#refreshComplete()
     }
-  
-    #acquire() {
-      if (this.#available > 0) {
-        this.#available -= 1
-        return undefined
-      } else {
-        let fn = new Function('() => {}')
-        const p = new Promise(ref => { fn = ref })
-        this.#upcoming.push(fn)
-        return p
-      }
+
+    async withLock(f = () => Promise) {
+        await this.#acquire()
+        return this.#execWithRelease(f)
     }
-  
-    #release() {
-      const queue = this.#queue()
-      if (queue.length) {
-        const fn = queue.pop()
-        if (fn) fn()
-      } else {
-        this.#available += 1
-  
-        if (this.#available >= this.workersCount) {
-          const fn = this.#completeFn
-          this.#refreshComplete()
-          fn()
+
+    async withLockRunAndForget(f = () => Promise) {
+        await this.#acquire()
+        // Ignoring returned promise on purpose!
+        this.#execWithRelease(f)
+    }
+
+    async awaitTerminate() {
+        if (this.#available < this.workersCount) {
+            return this.#completePr
         }
-      }
     }
-  
+
+    async #execWithRelease(f = () => Promise) {
+        try {
+            return await f()
+        } finally {
+            this.#release()
+        }
+    }
+
+    #queue() {
+        if (!this.#heads.length) {
+            this.#heads = this.#upcoming.reverse()
+            this.#upcoming = []
+        }
+        return this.#heads
+    }
+
+    #acquire() {
+        if (this.#available > 0) {
+            this.#available -= 1
+            return undefined
+        } else {
+            let fn = new Function('() => {}')
+            const p = new Promise(ref => { fn = ref })
+            this.#upcoming.push(fn)
+            return p
+        }
+    }
+
+    #release() {
+        const queue = this.#queue()
+        if (queue.length) {
+            const fn = queue.pop()
+            if (fn) fn()
+        } else {
+            this.#available += 1
+
+            if (this.#available >= this.workersCount) {
+                const fn = this.#completeFn
+                this.#refreshComplete()
+                fn()
+            }
+        }
+    }
+
     #refreshComplete() {
-      let fn = () => () => {/***/}
-      this.#completePr = new Promise(r => { fn = r })
-      this.#completeFn = fn
+        let fn = () => () => {/***/ }
+        this.#completePr = new Promise(r => { fn = r })
+        this.#completeFn = fn
     }
-  }
+}
