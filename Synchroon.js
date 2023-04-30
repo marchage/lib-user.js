@@ -13,7 +13,7 @@
 
 const {
     default: Semaphore
-} = await import('https:/raw.githubusercontent.com/marchage/lib-user.js/main/Semaphore.js');
+} = import('https:/raw.githubusercontent.com/marchage/lib-user.js/main/Semaphore.js');
 // /**
 //  * Async counting semaphore functionality, based on Edsger Dijkstra's concept from 
 //  * the '60s, using JS Promises. Taken from StackOverflow and adapted. General workings 
