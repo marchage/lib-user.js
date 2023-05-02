@@ -124,7 +124,15 @@ class Synchroon {
      */
     static async #fetchBlob(url) {
         // if (url == null) return
-        const res = await fetch(url).then(res => { if (!res.ok || res.status !== 200) { console.warn(`res not okay!`); throw new Error("Not 2xx response", { cause: res }); }  else return res })
+        const res = await fetch(url).then(res => {
+            if (!res.ok || res.status !== 200) {
+                console.warn(`fetch res not okay!`);
+                throw new Error("Not 2xx response", { cause: res });
+            } else return res
+        }, (err) => {
+            console.warn(`rejected fetch, not okay!`);
+            throw new Error("Not 2xx response", { cause: err });
+        })
         const resBuf = await res.arrayBuffer()
         const blob = new Blob([resBuf], { type: 'application/octet-stream' })
         return blob
