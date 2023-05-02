@@ -131,7 +131,7 @@ class Synchroon {
             } else return res
         }, (err) => {
             console.warn(`rejected fetch, not okay!`);
-            throw new Error("Not 2xx response", { cause: err });
+            throw new Error("Fetch failed (rejected)", { cause: err });
         })
         const resBuf = await res.arrayBuffer()
         const blob = new Blob([resBuf], { type: 'application/octet-stream' })
@@ -168,8 +168,14 @@ class Synchroon {
      */
     static async fetchBlobSynced(url) {
         await Synchroon.#semaphore.acquire()
-        const blob = await Synchroon.#fetchBlob(url)
-        Synchroon.#semaphore.release()
+        let blob
+        try {
+            blob = await Synchroon.#fetchBlob(url)
+            Synchroon.#semaphore.release()
+        } catch (e) {
+            Synchroon.#semaphore.release()
+            throw new Error("Fetching blob failed", { exception: e });
+        } 
         return blob
     }
 }
