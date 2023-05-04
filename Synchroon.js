@@ -118,6 +118,7 @@ class Synchroon {
           GM_xmlhttpRequest({
             method: "GET",
             url: url,
+            headers,
             onload: function(response) {
               resolve(response.responseText);
             },
