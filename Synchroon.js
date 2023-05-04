@@ -2,7 +2,7 @@
 // @name         Synchroon
 // @description  Async number semaphore guarded synchronized binary downloading - 5 at a time. Semaphore Taken from SO and adapted.
 //               Synchronicity starts here, by not awaiting public async functions, but rather awaiting the private ones.
-// @version      0.3.0
+// @version      0.4.0
 // @author       marchage
 // @match        *://*
 // @grant        GM_xmlhttpRequest
@@ -127,7 +127,7 @@ class Synchroon {
         return new Promise((resolve, reject) => {
             GM_xmlhttpRequest({
                 method: "GET",
-                url: url,
+                url,
                 responseType: "blob",
                 onload: function (response) {
                     resolve(response);
@@ -152,11 +152,10 @@ class Synchroon {
         // if (url == null) return
         // const res = await fetch(url).then(res => {
         const res = await Synchroon.#makeGetRequest(url).then(res => {
-            console.log(res)
-            // if (!res.ok || res.status !== 200) {
-            //     console.warn(`fetch res not okay!`);
-            //     throw new Error("Not 2xx response", { cause: res });
-            // } else 
+            if (res.status !== 200) {
+                console.warn(`fetch res not okay!`);
+                throw new Error("Not 2xx response", { cause: res });
+            } else 
                 return res
         }, (err) => {
             console.warn(`rejected fetch, not okay!`);
