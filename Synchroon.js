@@ -122,9 +122,9 @@ class Synchroon {
      * @param {*} url
      * @returns {unknown}
      */
-    static async #fetchBlob(url) {
+    static async #fetchBlob(url, headers = {}) {
         // if (url == null) return
-        const res = await fetch(url).then(res => {
+        const res = await fetch(url, headers).then(res => {
             if (!res.ok || res.status !== 200) {
                 console.warn(`fetch res not okay!`);
                 throw new Error("Not 2xx response", { cause: res });
@@ -166,11 +166,11 @@ class Synchroon {
      * @param {*} URL to fetch in the form of a blob
      * @returns {unknown}
      */
-    static async fetchBlobSynced(url) {
+    static async fetchBlobSynced(url, header) {
         await Synchroon.#semaphore.acquire()
         let blob
         try {
-            blob = await Synchroon.#fetchBlob(url)
+            blob = await Synchroon.#fetchBlob(url, header)
             Synchroon.#semaphore.release()
         } catch (e) {
             Synchroon.#semaphore.release()
