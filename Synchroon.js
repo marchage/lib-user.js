@@ -162,8 +162,7 @@ class Synchroon {
             console.warn(`rejected fetch, not okay!`);
             throw new Error("Fetch failed (rejected)", { cause: err });
         })
-        const resBuf = await res.arrayBuffer()
-        const blob = new Blob([resBuf], { type: 'application/octet-stream' })
+        const blob = res.response
         return blob
     }
 
