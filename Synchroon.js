@@ -125,19 +125,19 @@ class Synchroon {
      */
     static #makeGetRequest(url, headers = {}) {
         return new Promise((resolve, reject) => {
-          GM_xmlhttpRequest({
-            method: "GET",
-            url: url,
-            responseType: "blob",
-            onload: function(response) {
-              resolve(response);
-            },
-            onerror: function(error) {
-              reject(error);
-            }
-          });
+            GM_xmlhttpRequest({
+                method: "GET",
+                url: url,
+                responseType: "blob",
+                onload: function (response) {
+                    resolve(response);
+                },
+                onerror: function (error) {
+                    reject(error);
+                }
+            });
         });
-      }
+    }
 
     /**
      * Private function to fetch a blob from a URL. If the response is not 2xx
@@ -202,7 +202,7 @@ class Synchroon {
         } catch (e) {
             Synchroon.#semaphore.release()
             throw new Error("Fetching blob failed", { exception: e });
-        } 
+        }
         return blob
     }
 }
