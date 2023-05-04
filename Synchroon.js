@@ -150,8 +150,8 @@ class Synchroon {
      */
     static async #fetchBlob(url, headers = {}) {
         // if (url == null) return
-        // const res = await fetch(url, headers).then(res => {
-        const res = await Synchroon.#makeGetRequest(url, headers).then(res => {
+        const res = await fetch(url, headers).then(res => {
+        // const res = await Synchroon.#makeGetRequest(url, headers).then(res => {
             if (!res.ok || res.status !== 200) {
                 console.warn(`fetch res not okay!`);
                 throw new Error("Not 2xx response", { cause: res });
