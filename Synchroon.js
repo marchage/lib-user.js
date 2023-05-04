@@ -2,9 +2,10 @@
 // @name         Synchroon
 // @description  Async number semaphore guarded synchronized binary downloading - 5 at a time. Semaphore Taken from SO and adapted.
 //               Synchronicity starts here, by not awaiting public async functions, but rather awaiting the private ones.
-// @version      0.2.3
+// @version      0.3.0
 // @author       marchage
 // @match        *://*
+// @grant        GM_xmlhttpRequest
 // ==/UserScript==
 /* eslint-env greasemonkey */
 
