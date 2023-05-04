@@ -113,6 +113,21 @@ class Synchroon {
         setTimeout(_ => URL.revokeObjectURL(blob), 30000)
     }
 
+    static #makeGetRequest(url, headers = {}) {
+        return new Promise((resolve, reject) => {
+          GM_xmlhttpRequest({
+            method: "GET",
+            url: url,
+            onload: function(response) {
+              resolve(response.responseText);
+            },
+            onerror: function(error) {
+              reject(error);
+            }
+          });
+        });
+      }
+
     /**
      * Private function to fetch a blob from a URL. If the response is not 2xx
      * an error is thrown.
@@ -124,7 +139,8 @@ class Synchroon {
      */
     static async #fetchBlob(url, headers = {}) {
         // if (url == null) return
-        const res = await fetch(url, headers).then(res => {
+        // const res = await fetch(url, headers).then(res => {
+        const res = await Synchroon.#makeGetRequest(url, headers).then(res => {
             if (!res.ok || res.status !== 200) {
                 console.warn(`fetch res not okay!`);
                 throw new Error("Not 2xx response", { cause: res });
