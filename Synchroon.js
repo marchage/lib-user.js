@@ -113,14 +113,23 @@ class Synchroon {
         setTimeout(_ => URL.revokeObjectURL(blob), 30000)
     }
 
+    /**
+     * Private function to make a async GET request via GreaseMonkey's 
+     * GM_xmlhttpRequest to a URL (use // @ include iso // @match, for cors).
+     * @see https://stackoverflow.com/questions/65543898/how-can-i-use-async-gm-xmlhttprequest-to-return-values-in-original-order
+     * 
+     * @param {string} url url to make a GET request to
+     * @param {object} headers headers to add to the request
+     * @returns {Promise<string>}
+     */
     static #makeGetRequest(url, headers = {}) {
         return new Promise((resolve, reject) => {
           GM_xmlhttpRequest({
             method: "GET",
             url: url,
-            headers,
+            responseType: "blob",
             onload: function(response) {
-              resolve(response.responseText);
+              resolve(response);
             },
             onerror: function(error) {
               reject(error);
