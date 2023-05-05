@@ -194,11 +194,11 @@ class Synchroon {
      * @param {*} URL to fetch in the form of a blob
      * @returns {unknown}
      */
-    static async fetchBlobSynced(url, header) {
+    static async fetchBlobSynced(url) {
         await Synchroon.#semaphore.acquire()
         let blob
         try {
-            blob = await Synchroon.#fetchBlob(url, header)
+            blob = await Synchroon.#fetchBlob(url)
             Synchroon.#semaphore.release()
         } catch (e) {
             Synchroon.#semaphore.release()
