@@ -152,13 +152,14 @@ class Synchroon {
         // if (url == null) return
         // const res = await fetch(url).then(res => {
         const res = await Synchroon.#makeGetRequest(url).then(res => {
+            // fetch's res had ok property, but GM_xmlhttpRequest's res doesn't
             if (res.status !== 200) {
-                console.warn(`fetch res not okay!`);
+                console.warn(`GET resolved, but returned a different status then 200!`, res.status);
                 throw new Error("Not 2xx response", { cause: res });
             } else 
                 return res
         }, (err) => {
-            console.warn(`rejected fetch, not okay!`);
+            console.warn(`GET rejected, not okay!`, err);
             throw new Error("Fetch failed (rejected)", { cause: err });
         })
         const blob = res.response
