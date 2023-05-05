@@ -94,7 +94,7 @@ class Synchroon {
     /** @type {number} Don't know why this was, but it was needed for some reason. Hopefully not only demonstration purpouses?! */
     static #delay = 100
 
-    static #sleep(ms) {
+    static sleep(ms) {
         return new Promise(resolve => setTimeout(resolve, ms))
     }
 
