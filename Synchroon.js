@@ -5,7 +5,7 @@
 // @version      0.4.0
 // @author       marchage
 // @match        *://*
-// @grant        GM_xmlhttpRequest
+// @grant        GM.xmlHttpRequest
 // ==/UserScript==
 /* eslint-env greasemonkey */
 
@@ -125,7 +125,7 @@ class Synchroon {
      */
     static #makeGetRequest(url) {
         return new Promise((resolve, reject) => {
-            GM_xmlhttpRequest({
+            GM.xmlHttpRequest({
                 method: "GET",
                 url,
                 responseType: "blob",
