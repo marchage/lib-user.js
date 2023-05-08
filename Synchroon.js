@@ -108,7 +108,7 @@ class Synchroon {
      */
     static #downloadBlob(blob, name) {
         const anchor = document.createElement("a")
-        anchor.setAttribute("filename", name || "")
+        anchor.setAttribute("download", name || "")
         anchor.href = URL.createObjectURL(blob)
         anchor.click()
         setTimeout(_ => URL.revokeObjectURL(blob), 30000)
