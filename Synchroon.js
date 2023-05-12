@@ -153,12 +153,13 @@ class Synchroon {
      * @param {object} headers headers to add to the request
      * @returns {Promise<string>}
      */
-    static #makeGetRequest(url) {
+    static #makeGetRequest(url, responseType = "blob", headers = {}) {
         return new Promise((resolve, reject) => {
             GM_xmlhttpRequest({
                 method: "GET",
                 url,
-                responseType: "blob",
+                responseType,
+                headers,
                 onload: function (response) {
                     resolve(response);
                 },
@@ -223,6 +224,7 @@ class Synchroon {
      * @async
      * @param {*} URL to fetch in the form of a blob
      * @returns {unknown}
+     * @throws {Error} if the fetch fails or the response is not 2xx
      */
     static async fetchBlobSynced(url) {
         await Synchroon.#semaphore.acquire()
@@ -235,5 +237,38 @@ class Synchroon {
             throw new Error("Fetching blob failed", { exception: e });
         }
         return blob
+    }
+
+    /**
+     * Fetch than query-select all elements from another HTML document that match the query-selector. 
+     * Can be called from async function without awaiting. Allows 5 concurrent fetches at a time.
+     * 
+     * @static
+     * @async
+     * @param {string|URL} url URL to fetch
+     * @param {string} querySelectorAllParam CSS selector to feed the querySelectorAll function
+     * @returns {HTMLElement[]} Array of elements (empty if none found, just like querySelectorAll)
+     */
+    static async qeurySelectorAllUrl(url, querySelectorAllParam) {
+        await Synchroon.#semaphore.acquire()
+        let res
+        try {
+            res = await Synchroon.#makeGetRequest(url, 'text', { credentials: 'same-origin' }).then(res => {
+                // fetch's res had ok property, but GM_xmlhttpRequest's res doesn't
+                if (res.status !== 200) throw new Error("Not 2xx response", { cause: res })
+                return res
+            }, err => { throw new Error("Fetch failed (rejected)", { cause: err }) })
+        } catch (e) {
+            console.error("qeurySelectorAllUrl failed", { exception: e });
+        } finally {
+            Synchroon.#semaphore.release()
+        }   
+
+        // @TODO what if res is undefined?
+        const html = await res.response
+        const doc = new DOMParser().parseFromString(html, 'text/html')
+
+        // returns empty array if none found
+        return doc.querySelectorAll(querySelectorAllParam) 
     }
 }
