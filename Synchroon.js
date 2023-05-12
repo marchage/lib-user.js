@@ -262,13 +262,13 @@ class Synchroon {
             console.error("qeurySelectorAllUrl failed", { exception: e });
         } finally {
             Synchroon.#semaphore.release()
-        }   
+        }
 
         // @TODO what if res is undefined?
         const html = await res.response
         const doc = new DOMParser().parseFromString(html, 'text/html')
 
         // returns empty array if none found
-        return doc.querySelectorAll(querySelectorAllParam) 
+        return Array.isArray(querySelectorAllParam) ? querySelectorAllParam.map(q => doc.querySelectorAll(querySelectorAllParam)) : querySelectorAllParam ? doc.querySelectorAll(querySelectorAllParam) : []
     }
 }
