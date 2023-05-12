@@ -9,6 +9,36 @@
 // ==/UserScript==
 /* eslint-env greasemonkey */
 
+class Lib {
+    /**
+     * absolute URL from relative URL
+     * 
+     * @static
+     * @param {string} url URL to make (or keep) absolue 
+     * @returns Absolute URL
+     */
+    static absUrl(url) {
+        const a = new URL(url, document.baseURI)
+        // (if not works, look into replacing comma in name)
+        return `${a.protocol}//${a.host}${a.pathname}${a.search}${a.hash}`
+    }
+
+    /**
+     * Filename from URL, max 20 chars, no comma's
+     * 
+     * @static
+     * @param {string} url URL to to take the last 20 chars of pathname from
+     * @returns Name for the file (max 20 chars)(without comma's)
+     */
+    static nameFromUrl(url) {
+        const a = new URL(url, document.baseURI)
+        let res = `${a.pathname.split('/').pop().slice(-20).replace(/,/g, '')}`
+        if (res.length === 0) res = `nameless-medium-${id}`
+        if (res.split('.').length < 2) res = `${res}.jpg`
+        return res
+    }
+}
+
 /**
  * Async counting semaphore functionality, based on Edsger Dijkstra's concept from 
  * the '60s, using JS Promises. Taken from StackOverflow and adapted. General workings 
@@ -156,7 +186,7 @@ class Synchroon {
             if (res.status !== 200) {
                 console.warn(`GET resolved, but returned a different status then 200!`, res.status);
                 throw new Error("Not 2xx response", { cause: res });
-            } else 
+            } else
                 return res
         }, (err) => {
             console.warn(`GET rejected, not okay!`, err);
