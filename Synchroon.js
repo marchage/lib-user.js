@@ -2,7 +2,7 @@
 // @name         Synchroon
 // @description  Async number semaphore guarded synchronized binary downloading - 5 at a time. Semaphore Taken from SO and adapted.
 //               Synchronicity starts here, by not awaiting public async functions, but rather awaiting the private ones.
-// @version      0.4.0
+// @version      0.4.1
 // @author       marchage
 // @match        *://*
 // @grant        GM_xmlhttpRequest
@@ -32,7 +32,7 @@ class Lib {
      * @returns Name for the file (max 20 chars)(without comma's)
      */
     static nameFromUrl(url) {
-        const a = new URL(url, document.baseURI)
+        const a = new URL(url, window.location.href)
         let res = `${a.pathname.split('/').pop().slice(-20).replace(/,/g, '')}`
         if (res.length === 0) res = `nameless-medium-${id}`
         if (res.split('.').length < 2) res = `${res}.jpg`
@@ -270,6 +270,6 @@ class Synchroon {
         const doc = new DOMParser().parseFromString(html, 'text/html')
 
         // returns empty array if none found
-        return Array.isArray(querySelectorAllParam) ? querySelectorAllParam.map(q => doc.querySelectorAll(querySelectorAllParam)) : querySelectorAllParam ? doc.querySelectorAll(querySelectorAllParam) : []
+        return Array.isArray(querySelectorAllParam) ? querySelectorAllParam.map(q => doc.querySelectorAll(q)) : querySelectorAllParam ? doc.querySelectorAll(querySelectorAllParam) : []
     }
 }
