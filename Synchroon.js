@@ -6,6 +6,7 @@
 // @author       marchage
 // @match        *://*
 // @grant        GM_xmlhttpRequest
+// @grant        window.location
 // ==/UserScript==
 /* eslint-env greasemonkey */
 
@@ -18,9 +19,9 @@ class Lib {
      * @returns Absolute URL
      */
     static absUrl(url) {
-        const a = new URL(url, document.baseURI)
+        const a = new URL(url, window.location.href)
         // (if not works, look into replacing comma in name)
-        return `${a.protocol}//${a.host}${a.pathname}${a.search}${a.hash}`
+        return `${a.protocol}//${a.hostname}${a.pathname}${a.search}${a.hash}`
     }
 
     /**
@@ -118,7 +119,7 @@ class Semaphore {
  */
 class Synchroon {
     /** @type {Semaphore} */
-    static #semaphore = new Semaphore(6)
+    static #semaphore = new Semaphore(5)
     /** @type {Semaphore} semaphore of 1, behavous like a simple mutex-lock */
     static #mutex = new Semaphore(1)
     /** @type {number} Don't know why this was, but it was needed for some reason. Hopefully not only demonstration purpouses?! */
