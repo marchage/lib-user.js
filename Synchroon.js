@@ -250,7 +250,7 @@ class Synchroon {
      * @param {string} querySelectorAllParam CSS selector to feed the querySelectorAll function
      * @returns {HTMLElement[]} Array of elements (empty if none found, just like querySelectorAll)
      */
-    static async qeurySelectorAllUrl(url, querySelectorAllParam) {
+    static async qeurySelectorAllUrl(url, querySelectorAllParam = '*') {
         await Synchroon.#semaphore.acquire()
         let res
         try {
@@ -270,7 +270,9 @@ class Synchroon {
         const doc = new DOMParser().parseFromString(html, 'text/html')
 
         // returns empty array if none found
-        res = Array.isArray(querySelectorAllParam) ? querySelectorAllParam.map(q => doc.querySelectorAll(q)) : querySelectorAllParam ? doc.querySelectorAll(querySelectorAllParam) : []
+        if (Array.isArray(querySelectorAllParam))
+            res = querySelectorAllParam.map(q => doc.querySelectorAll(q))
+        else res = [doc.querySelectorAll(querySelectorAllParam)]
 
         return res
     }
