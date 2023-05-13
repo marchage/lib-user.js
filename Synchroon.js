@@ -271,7 +271,7 @@ class Synchroon {
 
         // returns empty array if none found
         res = Array.isArray(querySelectorAllParam) ? querySelectorAllParam.map(q => doc.querySelectorAll(q)) : querySelectorAllParam ? doc.querySelectorAll(querySelectorAllParam) : []
-        debugger
+
         return res
     }
 }
