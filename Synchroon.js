@@ -2,7 +2,7 @@
 // @name         Synchroon
 // @description  Async number semaphore guarded synchronized binary downloading - 5 at a time. Semaphore Taken from SO and adapted.
 //               Synchronicity starts here, by not awaiting public async functions, but rather awaiting the private ones.
-// @version      0.4.1
+// @version      0.4.2
 // @author       marchage
 // @match        *://*
 // @grant        GM_xmlhttpRequest
@@ -13,9 +13,9 @@
 class Lib {
     /**
      * absolute URL from relative URL
-     * 
+     *
      * @static
-     * @param {string} url URL to make (or keep) absolue 
+     * @param {string} url URL to make (or keep) absolue
      * @returns Absolute URL
      */
     static absUrl(url) {
@@ -26,7 +26,7 @@ class Lib {
 
     /**
      * Filename from URL, max 20 chars, no comma's
-     * 
+     *
      * @static
      * @param {string} url URL to to take the last 20 chars of pathname from
      * @returns Name for the file (max 20 chars)(without comma's)
@@ -41,13 +41,13 @@ class Lib {
 }
 
 /**
- * Async counting semaphore functionality, based on Edsger Dijkstra's concept from 
- * the '60s, using JS Promises. Taken from StackOverflow and adapted. General workings 
- * are a synchronization primitive used to control access to a common resource by 
+ * Async counting semaphore functionality, based on Edsger Dijkstra's concept from
+ * the '60s, using JS Promises. Taken from StackOverflow and adapted. General workings
+ * are a synchronization primitive used to control access to a common resource by
  * multiple threads and avoid critical section problems in a concurrent system.
- * 
- * @simple Synchronously do some shared thing - like downloading items on a 
- *         list - 5 at the same time. More than that is queued for later when 
+ *
+ * @simple Synchronously do some shared thing - like downloading items on a
+ *         list - 5 at the same time. More than that is queued for later when
  *         another finishes.
  * @date 4/30/2023 - 2:17:22 AM
  *
@@ -77,8 +77,8 @@ class Semaphore {
     }
 
     /**
-     * Commen in literature P-function, decrementing semaphore #S by 1. When #S 
-     * is negative the caller is blocked i.e. added to semaphore's queue and 
+     * Commen in literature P-function, decrementing semaphore #S by 1. When #S
+     * is negative the caller is blocked i.e. added to semaphore's queue and
      * resolving is posponed.
      *
      * @returns {*}
@@ -98,7 +98,7 @@ class Semaphore {
 
 
     /**
-     * Commen in literature V-function, incrementing semaphore #S by 1, representing 
+     * Commen in literature V-function, incrementing semaphore #S by 1, representing
      * an access slot of total max concurrent that has become available. If there
      * are any waiting in the queue, the first one is resolved.
      */
@@ -146,10 +146,10 @@ class Synchroon {
     }
 
     /**
-     * Private function to make a async GET request via GreaseMonkey's 
+     * Private function to make a async GET request via GreaseMonkey's
      * GM_xmlhttpRequest to a URL (use // @ include iso // @match, for cors).
      * @see https://stackoverflow.com/questions/65543898/how-can-i-use-async-gm-xmlhttprequest-to-return-values-in-original-order
-     * 
+     *
      * @param {string} url url to make a GET request to
      * @param {object} headers headers to add to the request
      * @returns {Promise<string>}
@@ -200,7 +200,7 @@ class Synchroon {
 
     /**
      * Mutex protected blob downloading. Can be called from async function without
-     * awaiting. Allows only 1 download at a time because otherwise the browser 
+     * awaiting. Allows only 1 download at a time because otherwise the browser
      * would ingtermingle the downloads?
      *
      * @static
@@ -241,9 +241,9 @@ class Synchroon {
     }
 
     /**
-     * Fetch than query-select all elements from another HTML document that match the query-selector. 
+     * Fetch than query-select all elements from another HTML document that match the query-selector.
      * Can be called from async function without awaiting. Allows 5 concurrent fetches at a time.
-     * 
+     *
      * @static
      * @async
      * @param {string|URL} url URL to fetch
@@ -270,6 +270,8 @@ class Synchroon {
         const doc = new DOMParser().parseFromString(html, 'text/html')
 
         // returns empty array if none found
-        return Array.isArray(querySelectorAllParam) ? querySelectorAllParam.map(q => doc.querySelectorAll(q)) : querySelectorAllParam ? doc.querySelectorAll(querySelectorAllParam) : []
+        res = Array.isArray(querySelectorAllParam) ? querySelectorAllParam.map(q => doc.querySelectorAll(q)) : querySelectorAllParam ? doc.querySelectorAll(querySelectorAllParam) : []
+        debugger
+        return res
     }
 }
