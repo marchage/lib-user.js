@@ -8,8 +8,8 @@
 // @grant        GM_xmlhttpRequest
 // @grant        window.location
 // ==/UserScript==
-/* eslint-env greasemonkey */
 
+/* exported Lib */
 class Lib {
     /**
      * absolute URL from relative URL
@@ -18,7 +18,7 @@ class Lib {
      * @param {string} url URL to make (or keep) absolue
      * @returns Absolute URL
      */
-    static absUrl(url) {
+    static absUrl (url) {
         const a = new URL(url, window.location.href)
         // (if not works, look into replacing comma in name)
         return `${a.protocol}//${a.hostname}${a.pathname}${a.search}${a.hash}`
@@ -31,12 +31,21 @@ class Lib {
      * @param {string} url URL to to take the last 20 chars of pathname from
      * @returns Name for the file (max 20 chars)(without comma's)
      */
-    static nameFromUrl(url) {
+    static nameFromUrl (url = window.location.href) {
         const a = new URL(url, window.location.href)
-        let res = `${a.pathname.split('/').pop().slice(-20).replace(/,/g, '')}`
-        if (res.length === 0) res = `nameless-medium-${id}`
+        let res = `${a.pathname.split('/').pop().slice(-20)}`
+        if (res.length === 0) res = `nameless-medium-${a.hostname}`
+        res = res.replace(/,/g, '')
         if (res.split('.').length < 2) res = `${res}.jpg`
         return res
+    }
+
+    static getElementsByContains = function (str, elmtTagName = '*', node = document) {
+        const elms = document.evaluate('//' + elmtTagName + '[contains(., "' + str + '")]', node, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null)
+        const nodeSet = []
+        for (let i = 0; i < elms.snapshotLength; i++)
+            nodeSet.push(elms.snapshotItem(i))
+        return nodeSet
     }
 }
 
@@ -54,6 +63,7 @@ class Lib {
  * @class Semaphore
  * @typedef {Semaphore}
  */
+/* exported Semaphore */
 class Semaphore {
     /** (ficticious) semaphore #S = #max - #count */
     /** @type {number} */
@@ -69,8 +79,8 @@ class Semaphore {
      * @constructor
      * @param {number} [max=1] - Maximum number of concurrent operations
      */
-    constructor(max = 1) {
-        if (max < 1) { max = 1 }
+    constructor (max = 1) {
+        if (max < 1) max = 1
         this.#max = max
         this.#count = 0
         this.#queue = []
@@ -83,31 +93,30 @@ class Semaphore {
      *
      * @returns {*}
      */
-    acquire() {
+    acquire () {
         let promise
-        if (this.#count < this.#max) {
+        if (this.#count < this.#max)
             promise = Promise.resolve()
-        } else {
+        else
             promise = new Promise(resolve => {
                 this.#queue.push(resolve)
             })
-        }
-        this.#count++
+
+        this.#count = this.#count + 1
         return promise
     }
-
 
     /**
      * Commen in literature V-function, incrementing semaphore #S by 1, representing
      * an access slot of total max concurrent that has become available. If there
      * are any waiting in the queue, the first one is resolved.
      */
-    release() {
+    release () {
         if (this.#queue.length > 0) {
             const resolve = this.#queue.shift()
             resolve()
         }
-        this.#count--
+        this.#count -= 1
     }
 }
 
@@ -117,6 +126,7 @@ class Semaphore {
  * @class Synchroon
  * @typedef {Synchroon}
  */
+/* exported Synchroon */
 class Synchroon {
     /** @type {Semaphore} */
     static #semaphore = new Semaphore(5)
@@ -125,10 +135,9 @@ class Synchroon {
     /** @type {number} Don't know why this was, but it was needed for some reason. Hopefully not only demonstration purpouses?! */
     static #delay = 100
 
-    static #sleep(ms) {
+    static #sleep (ms) {
         return new Promise(resolve => setTimeout(resolve, ms))
     }
-
 
     /**
      * Download blob with name to local disk. If no name is given, the browser name is taken from blob type.
@@ -137,9 +146,9 @@ class Synchroon {
      * @param {*} blob
      * @param {*} name
      */
-    static #downloadBlob(blob, name) {
-        const anchor = document.createElement("a")
-        anchor.setAttribute("download", name || "")
+    static #downloadBlob (blob, name) {
+        const anchor = document.createElement('a')
+        anchor.setAttribute('download', name || '')
         anchor.href = URL.createObjectURL(blob)
         anchor.click()
         setTimeout(_ => URL.revokeObjectURL(blob), 30000)
@@ -154,21 +163,21 @@ class Synchroon {
      * @param {object} headers headers to add to the request
      * @returns {Promise<string>}
      */
-    static #makeGetRequest(url, responseType = "blob", headers = {}) {
+    static #makeGetRequest (url, responseType = 'blob', headers = {}) {
         return new Promise((resolve, reject) => {
             GM_xmlhttpRequest({
-                method: "GET",
+                method: 'GET',
                 url,
                 responseType,
                 headers,
                 onload: function (response) {
-                    resolve(response);
+                    resolve(response)
                 },
                 onerror: function (error) {
-                    reject(error);
+                    reject(error)
                 }
-            });
-        });
+            })
+        })
     }
 
     /**
@@ -180,17 +189,17 @@ class Synchroon {
      * @param {*} url
      * @returns {unknown}
      */
-    static async #fetchBlob(url) {
+    static async #fetchBlob (url) {
         // if (url == null) return
         // const res = await fetch(url).then(res => {
         const res = await Synchroon.#makeGetRequest(url).then(res => {
             // fetch's res had ok property, but GM_xmlhttpRequest's res doesn't
-            if (res.status !== 200) {
-                throw new Error("#FETCHBLOB SUCCEDED, BUT got notified of a not 2xx response", { cause: res });
-            } else
+            if (res.status !== 200)
+                throw new Error('#FETCHBLOB SUCCEDED, BUT got notified of a not 2xx response', { cause: res })
+            else
                 return res
         }, (err) => {
-            throw new Error("#FETCHBLOB FAILED! Promise rejected w/ error, so a real one", { cause: err });
+            throw new Error('#FETCHBLOB FAILED! Promise rejected w/ error, so a real one', { cause: err })
         })
         const blob = res.response
         return blob
@@ -207,12 +216,12 @@ class Synchroon {
      * @param {*} name Name of the file to download
      * @returns {*}
      */
-    static async downloadBlobSynced(blob, name) {
+    static async downloadBlobSynced (blob, name) {
         await Synchroon.#mutex.acquire()
         Synchroon.#downloadBlob(blob, name)
         await Synchroon.#sleep(Synchroon.#delay)
         Synchroon.#mutex.release()
-        console.info("Downloaded", name)
+        console.info('Downloaded', name)
     }
 
     /**
@@ -225,7 +234,7 @@ class Synchroon {
      * @returns {unknown}
      * @throws {Error} if the fetch fails or the response is not 2xx
      */
-    static async fetchBlobSynced(url) {
+    static async fetchBlobSynced (url) {
         await Synchroon.#semaphore.acquire()
         let blob
         try {
@@ -233,7 +242,7 @@ class Synchroon {
             Synchroon.#semaphore.release()
         } catch (e) {
             Synchroon.#semaphore.release()
-            throw new Error("Fetching blob failed", { exception: e });
+            throw new Error('Fetching blob failed', { exception: e })
         }
         return blob
     }
@@ -248,29 +257,28 @@ class Synchroon {
      * @param {string} querySelectorAllParam CSS selector to feed the querySelectorAll function
      * @returns {HTMLElement[]} Array of elements (empty if none found, just like querySelectorAll)
      */
-    static async qeurySelectorAllUrl(url, querySelectorAllParam = '*') {
+    static async qeurySelectorAllUrl (url, querySelectorAllParam = '*') {
         await Synchroon.#semaphore.acquire()
-        let res
+        let response
         try {
-            res = await Synchroon.#makeGetRequest(url, 'text', { credentials: 'same-origin' }).then(res => {
+            ({ response }) = await Synchroon.#makeGetRequest(url, 'text', { credentials: 'same-origin' }).then(res => {
                 // fetch's res had ok property, but GM_xmlhttpRequest's res doesn't
-                if (res.status !== 200) throw new Error("Not 2xx response, qeurySelectorAllUrl failed (non-rejected):", { cause: res })
+                if (res.status !== 200) throw new Error('Not 2xx response, qeurySelectorAllUrl failed (non-rejected):', { cause: res })
                 return res
-            }, err => { throw new Error("qeurySelectorAllUrl failed (rejected):", { cause: err }) })
+            }, err => { throw new Error('qeurySelectorAllUrl failed (rejected):', { cause: err }) })
             Synchroon.#semaphore.release()
         } catch (e) {
             Synchroon.#semaphore.release()
-            throw new Error("qeurySelectorAllUrl caught:", { exception: e });
+            throw new Error('qeurySelectorAllUrl caught:', { exception: e })
         }
 
         // @TODO what if res is undefined?
-        const html = await res.response
+        const html = response
         const doc = new DOMParser().parseFromString(html, 'text/html')
 
-        if (Array.isArray(querySelectorAllParam))
-            res = querySelectorAllParam.map(q => [...doc.querySelectorAll(q)])
-        else res = [[...doc.querySelectorAll(querySelectorAllParam)]] // wrap in array to make it consistent with the array of arrays
+        if (Array.isArray(querySelectorAllParam)) response = querySelectorAllParam.map(q => [...doc.querySelectorAll(q)])
+        else response = [[...doc.querySelectorAll(querySelectorAllParam)]] // wrap in array to make it consistent with the array of arrays
 
-        return res
+        return response
     }
 }

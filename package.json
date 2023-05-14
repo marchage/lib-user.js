@@ -1,6 +1,6 @@
 {
   "name": "synchroon",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Synchroon is an async number semaphore-guarded synchronized blob downloader - 5 at a time by default. Semaphore Taken from SO and adapted.",
   "main": "Synchroon.js",
   "scripts": {
@@ -30,5 +30,11 @@
   "bugs": {
     "url": "https://github.com/marchage/lib-user.js/issues"
   },
-  "homepage": "https://github.com/marchage/lib-user.js#readme"
+  "homepage": "https://github.com/marchage/lib-user.js#readme",
+  "eslintConfig": {
+    "env": {
+      "greasemonkey": true,
+      "browser": true
+    }
+  }
 }
