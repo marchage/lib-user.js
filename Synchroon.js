@@ -186,13 +186,11 @@ class Synchroon {
         const res = await Synchroon.#makeGetRequest(url).then(res => {
             // fetch's res had ok property, but GM_xmlhttpRequest's res doesn't
             if (res.status !== 200) {
-                console.warn(`GET resolved, but returned a different status then 200!`, res.status);
-                throw new Error("Not 2xx response", { cause: res });
+                throw new Error("#FETCHBLOB SUCCEDED, BUT got notified of a not 2xx response", { cause: res });
             } else
                 return res
         }, (err) => {
-            console.warn(`GET rejected, not okay!`, err);
-            throw new Error("Fetch failed (rejected)", { cause: err });
+            throw new Error("#FETCHBLOB FAILED! Promise rejected w/ error, so a real one", { cause: err });
         })
         const blob = res.response
         return blob
@@ -256,23 +254,22 @@ class Synchroon {
         try {
             res = await Synchroon.#makeGetRequest(url, 'text', { credentials: 'same-origin' }).then(res => {
                 // fetch's res had ok property, but GM_xmlhttpRequest's res doesn't
-                if (res.status !== 200) throw new Error("Not 2xx response", { cause: res })
+                if (res.status !== 200) throw new Error("Not 2xx response, qeurySelectorAllUrl failed (non-rejected):", { cause: res })
                 return res
-            }, err => { throw new Error("Fetch failed (rejected)", { cause: err }) })
-        } catch (e) {
-            console.error("qeurySelectorAllUrl failed", { exception: e });
-        } finally {
+            }, err => { throw new Error("qeurySelectorAllUrl failed (rejected):", { cause: err }) })
             Synchroon.#semaphore.release()
+        } catch (e) {
+            Synchroon.#semaphore.release()
+            throw new Error("qeurySelectorAllUrl caught:", { exception: e });
         }
 
         // @TODO what if res is undefined?
         const html = await res.response
         const doc = new DOMParser().parseFromString(html, 'text/html')
 
-        // returns empty array if none found
         if (Array.isArray(querySelectorAllParam))
-            res = querySelectorAllParam.map(q => doc.querySelectorAll(q))
-        else res = [doc.querySelectorAll(querySelectorAllParam)]
+            res = querySelectorAllParam.map(q => [...doc.querySelectorAll(q)])
+        else res = [[...doc.querySelectorAll(querySelectorAllParam)]] // wrap in array to make it consistent with the array of arrays
 
         return res
     }
