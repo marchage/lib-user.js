@@ -9,7 +9,6 @@
 // @grant        window.location
 // ==/UserScript==
 
-/* exported Lib */
 class Lib {
     /**
      * absolute URL from relative URL
@@ -18,7 +17,7 @@ class Lib {
      * @param {string} url URL to make (or keep) absolue
      * @returns Absolute URL
      */
-    static absUrl (url) {
+    static absUrl(url) {
         const a = new URL(url, window.location.href)
         // (if not works, look into replacing comma in name)
         return `${a.protocol}//${a.hostname}${a.pathname}${a.search}${a.hash}`
@@ -31,7 +30,7 @@ class Lib {
      * @param {string} url URL to to take the last 20 chars of pathname from
      * @returns Name for the file (max 20 chars)(without comma's)
      */
-    static nameFromUrl (url = window.location.href) {
+    static nameFromUrl(url = window.location.href) {
         const a = new URL(url, window.location.href)
         let res = `${a.pathname.split('/').pop().slice(-20)}`
         if (res.length === 0) res = `nameless-medium-${a.hostname}`
@@ -40,8 +39,18 @@ class Lib {
         return res
     }
 
-    static getElementsByContains = function (str, elmtTagName = '*', node = document) {
-        const elms = document.evaluate('//' + elmtTagName + '[contains(., "' + str + '")]', node, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null)
+    static getElementsByContains = function (
+        str,
+        elmtTagName = '*',
+        node = document
+    ) {
+        const elms = document.evaluate(
+            '//' + elmtTagName + '[contains(., "' + str + '")]',
+            node,
+            null,
+            XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE,
+            null
+        )
         const nodeSet = []
         for (let i = 0; i < elms.snapshotLength; i++)
             nodeSet.push(elms.snapshotItem(i))
@@ -79,7 +88,7 @@ class Semaphore {
      * @constructor
      * @param {number} [max=1] - Maximum number of concurrent operations
      */
-    constructor (max = 1) {
+    constructor(max = 1) {
         if (max < 1) max = 1
         this.#max = max
         this.#count = 0
@@ -93,12 +102,11 @@ class Semaphore {
      *
      * @returns {*}
      */
-    acquire () {
+    acquire() {
         let promise
-        if (this.#count < this.#max)
-            promise = Promise.resolve()
+        if (this.#count < this.#max) promise = Promise.resolve()
         else
-            promise = new Promise(resolve => {
+            promise = new Promise((resolve) => {
                 this.#queue.push(resolve)
             })
 
@@ -111,7 +119,7 @@ class Semaphore {
      * an access slot of total max concurrent that has become available. If there
      * are any waiting in the queue, the first one is resolved.
      */
-    release () {
+    release() {
         if (this.#queue.length > 0) {
             const resolve = this.#queue.shift()
             resolve()
@@ -135,8 +143,8 @@ class Synchroon {
     /** @type {number} Don't know why this was, but it was needed for some reason. Hopefully not only demonstration purpouses?! */
     static #delay = 100
 
-    static #sleep (ms) {
-        return new Promise(resolve => setTimeout(resolve, ms))
+    static #sleep(ms) {
+        return new Promise((resolve) => setTimeout(resolve, ms))
     }
 
     /**
@@ -146,12 +154,12 @@ class Synchroon {
      * @param {*} blob
      * @param {*} name
      */
-    static #downloadBlob (blob, name) {
+    static #downloadBlob(blob, name) {
         const anchor = document.createElement('a')
         anchor.setAttribute('download', name || '')
         anchor.href = URL.createObjectURL(blob)
         anchor.click()
-        setTimeout(_ => URL.revokeObjectURL(blob), 30000)
+        setTimeout((_) => URL.revokeObjectURL(blob), 30000)
     }
 
     /**
@@ -163,7 +171,7 @@ class Synchroon {
      * @param {object} headers headers to add to the request
      * @returns {Promise<string>}
      */
-    static #makeGetRequest (url, responseType = 'blob', headers = {}) {
+    static #makeGetRequest(url, responseType = 'blob', headers = {}) {
         return new Promise((resolve, reject) => {
             GM_xmlhttpRequest({
                 method: 'GET',
@@ -189,18 +197,26 @@ class Synchroon {
      * @param {*} url
      * @returns {unknown}
      */
-    static async #fetchBlob (url) {
+    static async #fetchBlob(url) {
         // if (url == null) return
         // const res = await fetch(url).then(res => {
-        const res = await Synchroon.#makeGetRequest(url).then(res => {
-            // fetch's res had ok property, but GM_xmlhttpRequest's res doesn't
-            if (res.status !== 200)
-                throw new Error('#FETCHBLOB SUCCEDED, BUT got notified of a not 2xx response', { cause: res })
-            else
-                return res
-        }, (err) => {
-            throw new Error('#FETCHBLOB FAILED! Promise rejected w/ error, so a real one', { cause: err })
-        })
+        const res = await Synchroon.#makeGetRequest(url).then(
+            (res) => {
+                // fetch's res had ok property, but GM_xmlhttpRequest's res doesn't
+                if (res.status !== 200)
+                    throw new Error(
+                        '#FETCHBLOB SUCCEDED, BUT got notified of a not 2xx response',
+                        { cause: res }
+                    )
+                else return res
+            },
+            (err) => {
+                throw new Error(
+                    '#FETCHBLOB FAILED! Promise rejected w/ error, so a real one',
+                    { cause: err }
+                )
+            }
+        )
         const blob = res.response
         return blob
     }
@@ -216,7 +232,7 @@ class Synchroon {
      * @param {*} name Name of the file to download
      * @returns {*}
      */
-    static async downloadBlobSynced (blob, name) {
+    static async downloadBlobSynced(blob, name) {
         await Synchroon.#mutex.acquire()
         Synchroon.#downloadBlob(blob, name)
         await Synchroon.#sleep(Synchroon.#delay)
@@ -234,7 +250,7 @@ class Synchroon {
      * @returns {unknown}
      * @throws {Error} if the fetch fails or the response is not 2xx
      */
-    static async fetchBlobSynced (url) {
+    static async fetchBlobSynced(url) {
         await Synchroon.#semaphore.acquire()
         let blob
         try {
@@ -257,27 +273,41 @@ class Synchroon {
      * @param {string|string[]} selectors CSS selector to feed the querySelectorAll function
      * @returns {HTMLElement[][]} Array of elements (empty if none found, just like querySelectorAll)
      */
-    static async qeurySelectorAllUrl (url, selectors = '*') {
+    static async qeurySelectorAllUrl(url, selectors = '*') {
         await Synchroon.#semaphore.acquire()
-        let response
+        let res
         try {
-            ({ response } = await Synchroon.#makeGetRequest(url, 'text', { credentials: 'same-origin' }).then(res => {
-                // fetch's res had ok property, but GM_xmlhttpRequest's res doesn't
-                if (res.status !== 200) throw new Error('Not 2xx response, qeurySelectorAllUrl failed (non-rejected):', { cause: res })
-                return res
-            }, err => { throw new Error('qeurySelectorAllUrl failed (rejected):', { cause: err }) }))
+            res = await Synchroon.#makeGetRequest(url, 'text', {
+                credentials: 'same-origin'
+            }).then(
+                (res) => {
+                    // fetch's res had ok property, but GM_xmlhttpRequest's res doesn't
+                    if (res.status !== 200)
+                        throw new Error(
+                            'Not 2xx response, qeurySelectorAllUrl failed (non-rejected):',
+                            { cause: res }
+                        )
+                    return res
+                },
+                (err) => {
+                    throw new Error('qeurySelectorAllUrl failed (rejected):', {
+                        cause: err
+                    })
+                }
+            )
             Synchroon.#semaphore.release()
         } catch (e) {
             Synchroon.#semaphore.release()
             throw new Error('qeurySelectorAllUrl caught:', { exception: e })
         }
 
-        const html = response
+        const html = res.response
         const doc = new DOMParser().parseFromString(html, 'text/html')
 
-        if (Array.isArray(selectors)) response = selectors.map(q => [...doc.querySelectorAll(q)])
-        else response = [[...doc.querySelectorAll(selectors)]] // wrap in array to make it consistent with the array of arrays
+        if (Array.isArray(selectors))
+            res = selectors.map((q) => [...doc.querySelectorAll(q)])
+        else res = [[...doc.querySelectorAll(selectors)]] // wrap in array to make it consistent with the array of arrays
 
-        return response
+        return res
     }
 }
