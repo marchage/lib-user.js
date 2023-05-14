@@ -2,7 +2,7 @@
 // @name         Synchroon
 // @description  Async number semaphore guarded synchronized binary downloading - 5 at a time. Semaphore Taken from SO and adapted.
 //               Synchronicity starts here, by not awaiting public async functions, but rather awaiting the private ones.
-// @version      0.4.2
+// @version      0.4.3
 // @author       marchage
 // @match        *://*
 // @grant        GM_xmlhttpRequest
@@ -254,10 +254,10 @@ class Synchroon {
      * @static
      * @async
      * @param {string|URL} url URL to fetch
-     * @param {string} querySelectorAllParam CSS selector to feed the querySelectorAll function
-     * @returns {HTMLElement[]} Array of elements (empty if none found, just like querySelectorAll)
+     * @param {string|string[]} selectors CSS selector to feed the querySelectorAll function
+     * @returns {HTMLElement[][]} Array of elements (empty if none found, just like querySelectorAll)
      */
-    static async qeurySelectorAllUrl (url, querySelectorAllParam = '*') {
+    static async qeurySelectorAllUrl (url, selectors = '*') {
         await Synchroon.#semaphore.acquire()
         let response
         try {
@@ -272,12 +272,11 @@ class Synchroon {
             throw new Error('qeurySelectorAllUrl caught:', { exception: e })
         }
 
-        // @TODO what if res is undefined?
         const html = response
         const doc = new DOMParser().parseFromString(html, 'text/html')
 
-        if (Array.isArray(querySelectorAllParam)) response = querySelectorAllParam.map(q => [...doc.querySelectorAll(q)])
-        else response = [[...doc.querySelectorAll(querySelectorAllParam)]] // wrap in array to make it consistent with the array of arrays
+        if (Array.isArray(selectors)) response = selectors.map(q => [...doc.querySelectorAll(q)])
+        else response = [[...doc.querySelectorAll(selectors)]] // wrap in array to make it consistent with the array of arrays
 
         return response
     }
