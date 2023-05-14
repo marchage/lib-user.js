@@ -39,7 +39,7 @@ class Lib {
         return res
     }
 
-    static getElementsByContains = function (
+    static getElementsByContains (
         str,
         elmtTagName = '*',
         node = document
@@ -72,7 +72,29 @@ class Lib {
         return result
     }
 
-    parseQuery = s => [...new URLSearchParams(s).entries()].reduce((acc, [k, v]) => { acc[k] = v; return acc }, {})
+    parseQuery (s) { return [...new URLSearchParams(s).entries()].reduce((acc, [k, v]) => { acc[k] = v; return acc }, {}) }
+
+    // @TODO better names (if possible)
+    _extends () {
+        return Object.assign || function (target) {
+            for (let i = 1; i < arguments.length; i++) {
+                const source = arguments[i]
+                for (const key in source)
+                    if (Object.prototype.hasOwnProperty.call(source, key))
+                        target[key] = source[key]
+            }
+            return target
+        }
+    }
+
+    _oNoProps (obj, keys) {
+        const target = {}
+        for (const i in obj) {
+            if (keys.indexOf(i) >= 0 || !Object.prototype.hasOwnProperty.call(obj, i)) continue
+            target[i] = obj[i]
+        }
+        return target
+    }
 }
 
 /**
@@ -254,6 +276,7 @@ class Synchroon {
         Synchroon.#downloadBlob(blob, name)
         await Synchroon.#sleep(Synchroon.#delay)
         Synchroon.#mutex.release()
+
         console.info('Downloaded', name)
     }
 
