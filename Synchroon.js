@@ -71,6 +71,8 @@ class Lib {
 
         return result
     }
+
+    parseQuery = s => [...new URLSearchParams(s).entries()].reduce((acc, [k, v]) => { acc[k] = v; return acc }, {})
 }
 
 /**
