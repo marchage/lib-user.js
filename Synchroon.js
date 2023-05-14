@@ -9,6 +9,7 @@
 // @grant        window.location
 // ==/UserScript==
 
+// eslint-disable-next-line no-unused-vars
 class Lib {
     /**
      * absolute URL from relative URL
@@ -72,10 +73,10 @@ class Lib {
         return result
     }
 
-    parseQuery (s) { return [...new URLSearchParams(s).entries()].reduce((acc, [k, v]) => { acc[k] = v; return acc }, {}) }
+    static parseQuery (s) { return [...new URLSearchParams(s).entries()].reduce((acc, [k, v]) => { acc[k] = v; return acc }, {}) }
 
     // @TODO better names (if possible)
-    _extends () {
+    static _extends () {
         return Object.assign || function (target) {
             for (let i = 1; i < arguments.length; i++) {
                 const source = arguments[i]
@@ -87,7 +88,7 @@ class Lib {
         }
     }
 
-    _oNoProps (obj, keys) {
+    static _oNoProps (obj, keys) {
         const target = {}
         for (const i in obj) {
             if (keys.indexOf(i) >= 0 || !Object.prototype.hasOwnProperty.call(obj, i)) continue
@@ -95,6 +96,8 @@ class Lib {
         }
         return target
     }
+
+    static xrm = (xpathToRemove) => { Lib.xpath(xpathToRemove).forEach(d => { d.parentNode.removeChild(d) }) }
 }
 
 /**
@@ -173,7 +176,7 @@ class Semaphore {
  * @class Synchroon
  * @typedef {Synchroon}
  */
-/* exported Synchroon */
+// eslint-disable-next-line no-unused-vars
 class Synchroon {
     /** @type {Semaphore} */
     static #semaphore = new Semaphore(5)
