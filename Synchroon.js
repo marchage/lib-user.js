@@ -261,11 +261,11 @@ class Synchroon {
         await Synchroon.#semaphore.acquire()
         let response
         try {
-            ({ response }) = await Synchroon.#makeGetRequest(url, 'text', { credentials: 'same-origin' }).then(res => {
+            ({ response } = await Synchroon.#makeGetRequest(url, 'text', { credentials: 'same-origin' }).then(res => {
                 // fetch's res had ok property, but GM_xmlhttpRequest's res doesn't
                 if (res.status !== 200) throw new Error('Not 2xx response, qeurySelectorAllUrl failed (non-rejected):', { cause: res })
                 return res
-            }, err => { throw new Error('qeurySelectorAllUrl failed (rejected):', { cause: err }) })
+            }, err => { throw new Error('qeurySelectorAllUrl failed (rejected):', { cause: err }) }))
             Synchroon.#semaphore.release()
         } catch (e) {
             Synchroon.#semaphore.release()
