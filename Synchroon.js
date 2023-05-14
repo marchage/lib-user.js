@@ -97,7 +97,13 @@ class Lib {
         return target
     }
 
-    static xrm = (xpathToRemove) => { Lib.xpath(xpathToRemove).forEach(d => { d.parentNode.removeChild(d) }) }
+    static xPathRm (xPRm) { Lib.xpath(xPRm).forEach(d => { d.parentNode.removeChild(d) }) }
+
+    static addCssToDocument (css) {
+        const style = document.createElement('style')
+        style.innerText = css
+        document.head.appendChild(style)
+    }
 }
 
 /**
