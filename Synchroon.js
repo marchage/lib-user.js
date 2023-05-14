@@ -56,6 +56,21 @@ class Lib {
             nodeSet.push(elms.snapshotItem(i))
         return nodeSet
     }
+
+    static getElementsByXPath = (xpath) => {
+        const result = []
+        const nodesSnapshot = document.evaluate(
+            xpath,
+            document,
+            null,
+            XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
+            null
+        )
+        for (let i = 0; i < nodesSnapshot.snapshotLength; i++)
+            result.push(nodesSnapshot.snapshotItem(i))
+
+        return result
+    }
 }
 
 /**
