@@ -321,14 +321,12 @@ class Synchroon {
      * @param {string|string[]} selectors CSS selector to feed the querySelectorAll function
      * @returns {HTMLElement[][]} Array of elements (empty if none found, just like querySelectorAll)
      */
-    static async qeurySelectorAllUrl (url, selectors = '*') {
+    static async qeurySelectorAllUrl (url, selectors = '*', headers = { credentials: 'include', accept: 'text/html,application/xhtml+xml,application' }) {
         await Synchroon.#semaphore.acquire()
         let res
         try {
             // res = await fetch(url, 'text', { credentials: 'include' }).then(
-            res = await Synchroon.#makeGetRequest(url, 'text', {
-                credentials: 'include'
-            }).then(
+            res = await Synchroon.#makeGetRequest(url, 'text', headers).then(
                 (res) => {
                     // fetch's res had ok property, but GM_xmlhttpRequest's res doesn't
                     if (res.status !== 200)
