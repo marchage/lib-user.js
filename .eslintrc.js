@@ -52,10 +52,14 @@ module.exports = {
         'no-unused-vars': [
             'error',
             {
-                vars: 'local',
-                args: 'after-used',
+                vars: 'all',
+                varsIgnorePattern: '[^_]*|Lib|Semaphore|Synchroon',
+                args: 'all',
                 argsIgnorePattern: '^_',
-                destructuredArrayIgnorePattern: '^_'
+                caughtErrors: 'all',
+                caughtErrorsIgnorePattern: '^_',
+                destructuredArrayIgnorePattern: '^_',
+                ignoreRestSiblings: false
             }
         ]
     }

@@ -2,14 +2,13 @@
 // @name         Synchroon
 // @description  Async number semaphore guarded synchronized binary downloading - 5 at a time. Semaphore Taken from SO and adapted.
 //               Synchronicity starts here, by not awaiting public async functions, but rather awaiting the private ones.
-// @version      0.4.4
+// @version      0.4.5
 // @author       marchage
 // @match        *://*
 // @grant        GM_xmlhttpRequest
 // @grant        window.location
 // ==/UserScript==
 
-// eslint-disable-next-line no-unused-vars
 class Lib {
     /**
      * absolute URL from relative URL
@@ -104,6 +103,8 @@ class Lib {
         style.innerText = css
         document.head.appendChild(style)
     }
+
+    static arrRandEl (a) { return (Array.isArray(a) ? a[Math.floor(Math.random() * a.length)] : a) }
 }
 
 /**
@@ -120,7 +121,6 @@ class Lib {
  * @class Semaphore
  * @typedef {Semaphore}
  */
-/* exported Semaphore */
 class Semaphore {
     /** (ficticious) semaphore #S = #max - #count */
     /** @type {number} */
@@ -182,7 +182,6 @@ class Semaphore {
  * @class Synchroon
  * @typedef {Synchroon}
  */
-// eslint-disable-next-line no-unused-vars
 class Synchroon {
     /** @type {Semaphore} */
     static #semaphore = new Semaphore(5)
@@ -326,8 +325,9 @@ class Synchroon {
         await Synchroon.#semaphore.acquire()
         let res
         try {
+            // res = await fetch(url, 'text', { credentials: 'include' }).then(
             res = await Synchroon.#makeGetRequest(url, 'text', {
-                credentials: 'same-origin'
+                credentials: 'include'
             }).then(
                 (res) => {
                     // fetch's res had ok property, but GM_xmlhttpRequest's res doesn't
