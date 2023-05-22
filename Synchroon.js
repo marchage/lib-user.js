@@ -17,7 +17,7 @@ class Lib {
      * @param {string} url URL to make (or keep) absolue
      * @returns Absolute URL
      */
-    static absUrl(url) {
+    static absUrl (url) {
         const a = new URL(url, window.location.href)
         // (if not works, look into replacing comma in name)
         return `${a.protocol}//${a.hostname}${a.pathname}${a.search}${a.hash}`
@@ -30,7 +30,7 @@ class Lib {
      * @param {string} url URL to to take the last 20 chars of pathname from
      * @returns Name for the file (max 20 chars)(without comma's)
      */
-    static nameFromUrl(url = window.location.href) {
+    static nameFromUrl (url = window.location.href) {
         const a = new URL(url, window.location.href)
         let res = `${a.pathname.split('/').pop().slice(-20)}`
         if (res.length === 0) {
@@ -43,13 +43,13 @@ class Lib {
         return res
     }
 
-    static getElementsByContains(
+    static getElementsByContains (
         str,
         elmtTagName = '*',
         node = document
     ) {
         const elms = document.evaluate(
-            '//' + elmtTagName + '[contains(., "' + str + '")]',
+            `//${elmtTagName}[contains(., "${str}")]`,
             node,
             null,
             XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE,
@@ -76,10 +76,10 @@ class Lib {
         return result
     }
 
-    static parseQuery(s) { return [...new URLSearchParams(s).entries()].reduce((acc, [k, v]) => { acc[k] = v; return acc }, {}) }
+    static parseQuery (s) { return [...new URLSearchParams(s).entries()].reduce((acc, [k, v]) => { acc[k] = v; return acc }, {}) }
 
     // @TODO better names (if possible)
-    static _extends() {
+    static _extends () {
         return Object.assign || function (target) {
             for (let i = 1; i < arguments.length; i++) {
                 const source = arguments[i]
@@ -91,24 +91,24 @@ class Lib {
         }
     }
 
-    static _oNoProps(obj, keys) {
+    static _oNoProps (obj, keys) {
         const target = {}
         for (const i in obj) {
-            if (keys.indexOf(i) >= 0 || !Object.prototype.hasOwnProperty.call(obj, i)) continue
+            if (keys.includes(i) || !Object.prototype.hasOwnProperty.call(obj, i)) continue
             target[i] = obj[i]
         }
         return target
     }
 
-    static xPathRm(xPRm) { Lib.xpath(xPRm).forEach(d => { d.parentNode.removeChild(d) }) }
+    static xPathRm (xPRm) { Lib.xpath(xPRm).forEach(d => { d.parentNode.removeChild(d) }) }
 
-    static addCssToDocument(css) {
+    static addCssToDocument (css) {
         const style = document.createElement('style')
         style.innerText = css
         document.head.appendChild(style)
     }
 
-    static arrRandEl(a) { return (Array.isArray(a) ? a[Math.floor(Math.random() * a.length)] : a) }
+    static arrRandEl (a) { return (Array.isArray(a) ? a[Math.floor(Math.random() * a.length)] : a) }
 }
 
 /**
@@ -140,7 +140,7 @@ class Semaphore {
      * @constructor
      * @param {number} [max=1] - Maximum number of concurrent operations
      */
-    constructor(max = 1) {
+    constructor (max = 1) {
         if (max < 1) max = 1
         this.#max = max
         this.#count = 0
@@ -154,7 +154,7 @@ class Semaphore {
      *
      * @returns {*}
      */
-    acquire() {
+    acquire () {
         let promise
         if (this.#count < this.#max) promise = Promise.resolve()
         else
@@ -162,7 +162,7 @@ class Semaphore {
                 this.#queue.push(resolve)
             })
 
-        this.#count = this.#count + 1
+        this.#count += 1
         return promise
     }
 
@@ -171,7 +171,7 @@ class Semaphore {
      * an access slot of total max concurrent that has become available. If there
      * are any waiting in the queue, the first one is resolved.
      */
-    release() {
+    release () {
         if (this.#queue.length > 0) {
             const resolve = this.#queue.shift()
             resolve()
@@ -194,7 +194,7 @@ class Synchroon {
     /** @type {number} Don't know why this was, but it was needed for some reason. Hopefully not only demonstration purpouses?! */
     static #delay = 100
 
-    static #sleep(ms) {
+    static #sleep (ms) {
         return new Promise((resolve) => setTimeout(resolve, ms))
     }
 
@@ -205,12 +205,12 @@ class Synchroon {
      * @param {*} blob
      * @param {*} name
      */
-    static #downloadBlob(blob, name) {
+    static #downloadBlob (blob, name) {
         const anchor = document.createElement('a')
         anchor.setAttribute('download', name || '')
         anchor.href = URL.createObjectURL(blob)
         anchor.click()
-        setTimeout((_) => URL.revokeObjectURL(blob), 30000)
+        setTimeout((_) => URL.revokeObjectURL(blob), 30_000)
     }
 
     /**
@@ -222,17 +222,17 @@ class Synchroon {
      * @param {object} headers headers to add to the request
      * @returns {Promise<string>}
      */
-    static #makeGetRequest(url, responseType = 'blob', headers = {}) {
+    static #makeGetRequest (url, responseType = 'blob', headers = {}) {
         return new Promise((resolve, reject) => {
             GM_xmlhttpRequest({
                 method: 'GET',
                 url,
                 responseType,
                 headers,
-                onload: function (response) {
+                onload(response) {
                     resolve(response)
                 },
-                onerror: function (error) {
+                onerror(error) {
                     reject(error)
                 }
             })
@@ -248,7 +248,7 @@ class Synchroon {
      * @param {*} url
      * @returns {unknown}
      */
-    static async #fetchBlob(url) {
+    static async #fetchBlob (url) {
         // if (url == null) return
         // const res = await fetch(url).then(res => {
         const res = await Synchroon.#makeGetRequest(url).then(
@@ -283,7 +283,7 @@ class Synchroon {
      * @param {*} name Name of the file to download
      * @returns {*}
      */
-    static async downloadBlobSynced(blob, name) {
+    static async downloadBlobSynced (blob, name) {
         await Synchroon.#mutex.acquire()
         Synchroon.#downloadBlob(blob, name)
         await Synchroon.#sleep(Synchroon.#delay)
@@ -302,7 +302,7 @@ class Synchroon {
      * @returns {unknown}
      * @throws {Error} if the fetch fails or the response is not 2xx
      */
-    static async fetchBlobSynced(url) {
+    static async fetchBlobSynced (url) {
         await Synchroon.#semaphore.acquire()
         let blob
         try {
