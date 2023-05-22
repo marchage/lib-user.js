@@ -33,7 +33,8 @@ class Lib {
     static nameFromUrl (url = window.location.href) {
         const a = new URL(url, window.location.href)
         let res = `${a.pathname.split('/').pop().slice(-20)}`
-        if (res.length === 0) res = `nameless-medium-${a.hostname}`
+        // eslint-disable-next-line no-debugger
+        if (res.length === 0) debugger; res = `nameless-medium-${a.hostname}`
         res = res.replace(/,/g, '')
         if (res.split('.').length < 2) res = `${res}.jpg`
         return res
@@ -309,52 +310,5 @@ class Synchroon {
             throw new Error('Fetching blob failed', { exception: e })
         }
         return blob
-    }
-
-    /**
-     * Fetch than query-select all elements from another HTML document that match the query-selector.
-     * Can be called from async function without awaiting. Allows 5 concurrent fetches at a time.
-     *
-     * @static
-     * @async
-     * @param {string|URL} url URL to fetch
-     * @param {string|string[]} selectors CSS selector to feed the querySelectorAll function
-     * @returns {HTMLElement[][]} Array of elements (empty if none found, just like querySelectorAll)
-     */
-    static async qeurySelectorAllUrl (url, selectors = '*', headers = { credentials: 'include', accept: 'text/html,application/xhtml+xml,application' }) {
-        await Synchroon.#semaphore.acquire()
-        let res
-        try {
-            // res = await fetch(url, 'text', { credentials: 'include' }).then(
-            res = await Synchroon.#makeGetRequest(url, 'text', headers).then(
-                (res) => {
-                    // fetch's res had ok property, but GM_xmlhttpRequest's res doesn't
-                    if (res.status !== 200)
-                        throw new Error(
-                            'Not 2xx response, qeurySelectorAllUrl failed (non-rejected):',
-                            { cause: res }
-                        )
-                    return res
-                },
-                (err) => {
-                    throw new Error('qeurySelectorAllUrl failed (rejected):', {
-                        cause: err
-                    })
-                }
-            )
-            Synchroon.#semaphore.release()
-        } catch (e) {
-            Synchroon.#semaphore.release()
-            throw new Error('qeurySelectorAllUrl caught:', { exception: e })
-        }
-
-        const html = res.response
-        const doc = new DOMParser().parseFromString(html, 'text/html')
-
-        if (Array.isArray(selectors))
-            res = selectors.map((q) => [...doc.querySelectorAll(q)])
-        else res = [[...doc.querySelectorAll(selectors)]] // wrap in array to make it consistent with the array of arrays
-
-        return res
     }
 }
