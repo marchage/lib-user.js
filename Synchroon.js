@@ -229,10 +229,10 @@ class Synchroon {
                 url,
                 responseType,
                 headers,
-                onload(response) {
+                onload (response) {
                     resolve(response)
                 },
-                onerror(error) {
+                onerror (error) {
                     reject(error)
                 }
             })
